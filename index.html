@@ -73,6 +73,43 @@
       .main-grid {
         grid-template-columns: 1fr;
       }
+      .output {
+        position: static;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 1rem;
+      }
+      h1 {
+        font-size: 1.8rem;
+      }
+      .font-grid {
+        grid-template-columns: 1fr;
+      }
+      .effects-grid {
+        grid-template-columns: 1fr;
+      }
+      .animation-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .direction-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .color-row {
+        flex-direction: column;
+      }
+      .toggle-group {
+        flex-direction: column;
+      }
+      .toggle-btn {
+        width: 100%;
+      }
+      .preview-area {
+        min-height: 120px;
+        padding: 1rem;
+      }
     }
 
     .panel {
@@ -348,6 +385,23 @@
       text-align: center;
     }
 
+    select.number-input {
+      cursor: pointer;
+      text-align: left;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238888aa'%3E%3Cpath d='M6 8L2 4h8z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      padding-right: 28px;
+    }
+
+    select.number-input option {
+      background: var(--bg-input);
+      color: var(--text-primary);
+    }
+
     .inline-group {
       display: flex;
       align-items: center;
@@ -373,6 +427,7 @@
       border: 1px solid var(--border-color);
       border-radius: 12px;
       min-height: 150px;
+      max-height: 300px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -380,10 +435,22 @@
       margin-bottom: 1.5rem;
       overflow: hidden;
       box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3);
+      position: relative;
     }
 
     #previewContent {
       width: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #previewContent svg {
+      max-width: 100%;
+      overflow: hidden;
     }
 
     /* Code Output */
@@ -524,8 +591,30 @@
           
           <div class="inline-group">
             <label>Font Size:</label>
-            <input type="number" class="number-input" id="fontSize" value="18" min="8" max="72">
+            <input type="number" class="number-input" id="fontSize" value="18" min="8" max="200">
             <label>px</label>
+          </div>
+          <div class="inline-group">
+            <label>Font Weight:</label>
+            <select class="number-input" id="fontWeight" style="width: 100px;">
+              <option value="100">100 Thin</option>
+              <option value="200">200 ExtraLight</option>
+              <option value="300">300 Light</option>
+              <option value="400" selected>400 Normal</option>
+              <option value="500">500 Medium</option>
+              <option value="600">600 SemiBold</option>
+              <option value="700">700 Bold</option>
+              <option value="800">800 ExtraBold</option>
+              <option value="900">900 Black</option>
+            </select>
+          </div>
+          <div class="section" style="margin-top: 1rem; margin-bottom: 0;">
+            <div class="section-label">Text Alignment</div>
+            <div class="toggle-group">
+              <button class="toggle-btn" data-align="left" onclick="setTextAlign('left')">Left</button>
+              <button class="toggle-btn active" data-align="center" onclick="setTextAlign('center')">Center</button>
+              <button class="toggle-btn" data-align="right" onclick="setTextAlign('right')">Right</button>
+            </div>
           </div>
         </div>
 
@@ -604,6 +693,71 @@
               <div class="effect-option" data-effect="bold" onclick="toggleEffect('bold')">Bold</div>
               <div class="effect-option" data-effect="italic" onclick="toggleEffect('italic')">Italic</div>
               <div class="effect-option" data-effect="blur" onclick="toggleEffect('blur')">Blur</div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-label">Underline</div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="underlineEnabled" onchange="toggleDecoration('underline')">
+              <label>Enable Underline</label>
+            </div>
+            <div id="underlineSettings" style="margin-top: 0.75rem; display: none;">
+              <div class="section-label" style="margin-bottom: 0.5rem;">Style</div>
+              <div class="effects-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="effect-option underline-style selected" data-ulstyle="solid" onclick="setUnderlineStyle('solid')">Solid</div>
+                <div class="effect-option underline-style" data-ulstyle="wavy" onclick="setUnderlineStyle('wavy')">Wavy</div>
+                <div class="effect-option underline-style" data-ulstyle="dashed" onclick="setUnderlineStyle('dashed')">Dashed</div>
+              </div>
+              <div class="color-row" style="margin-top: 0.75rem;">
+                <div class="color-picker-wrapper">
+                  <label>Color:</label>
+                  <input type="color" class="color-picker" id="underlineColor" value="#ffffff">
+                </div>
+                <div class="color-picker-wrapper">
+                  <label>Thickness:</label>
+                  <input type="number" class="number-input" id="underlineThickness" value="2" min="1" max="10">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-label">Overline</div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="overlineEnabled" onchange="toggleDecoration('overline')">
+              <label>Enable Overline</label>
+            </div>
+            <div id="overlineSettings" style="margin-top: 0.75rem; display: none;">
+              <div class="section-label" style="margin-bottom: 0.5rem;">Style</div>
+              <div class="effects-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="effect-option overline-style selected" data-olstyle="solid" onclick="setOverlineStyle('solid')">Solid</div>
+                <div class="effect-option overline-style" data-olstyle="wavy" onclick="setOverlineStyle('wavy')">Wavy</div>
+                <div class="effect-option overline-style" data-olstyle="dashed" onclick="setOverlineStyle('dashed')">Dashed</div>
+              </div>
+              <div class="color-row" style="margin-top: 0.75rem;">
+                <div class="color-picker-wrapper">
+                  <label>Color:</label>
+                  <input type="color" class="color-picker" id="overlineColor" value="#ffffff">
+                </div>
+                <div class="color-picker-wrapper">
+                  <label>Thickness:</label>
+                  <input type="number" class="number-input" id="overlineThickness" value="2" min="1" max="10">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-label">Text Transform</div>
+            <div class="inline-group" style="margin-top: 0;">
+              <label>Rotate:</label>
+              <input type="number" class="number-input" id="textRotate" value="0" min="-180" max="180">
+              <label>deg</label>
+            </div>
+            <div class="effects-grid" style="margin-top: 0.75rem;">
+              <div class="effect-option" data-transform="flipH" onclick="toggleTransform('flipH')">Flip H</div>
+              <div class="effect-option" data-transform="flipV" onclick="toggleTransform('flipV')">Flip V</div>
             </div>
           </div>
 
@@ -719,6 +873,8 @@
               <div class="animation-option" data-anim="float" onclick="setAnimation('float')">Float</div>
               <div class="animation-option" data-anim="wiggle" onclick="setAnimation('wiggle')">Wiggle</div>
               <div class="animation-option" data-anim="zoom" onclick="setAnimation('zoom')">Zoom</div>
+              <div class="animation-option" data-anim="wave" onclick="setAnimation('wave')">Wave</div>
+              <div class="animation-option" data-anim="marquee" onclick="setAnimation('marquee')">Marquee</div>
             </div>
           </div>
 
@@ -801,6 +957,8 @@
       textMode: 'single',
       font: fonts[0],
       fontSize: 18,
+      fontWeight: 400,
+      textAlign: 'center',
       colorMode: 'solid',
       solidColor: '#ffffff',
       solidOpacity: 1,
@@ -812,6 +970,23 @@
         bold: false,
         italic: false,
         blur: false
+      },
+      underline: {
+        enabled: false,
+        style: 'solid',
+        color: '#ffffff',
+        thickness: 2
+      },
+      overline: {
+        enabled: false,
+        style: 'solid',
+        color: '#ffffff',
+        thickness: 2
+      },
+      transform: {
+        rotate: 0,
+        flipH: false,
+        flipV: false
       },
       glowEnabled: false,
       glowColor: '#ff69b4',
@@ -889,6 +1064,47 @@
       document.querySelectorAll('.animation-option').forEach(opt => {
         opt.classList.toggle('selected', opt.dataset.anim === anim);
       });
+      updatePreview();
+    }
+
+    function setTextAlign(align) {
+      state.textAlign = align;
+      document.querySelectorAll('[data-align]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.align === align);
+      });
+      updatePreview();
+    }
+
+    function toggleDecoration(type) {
+      if (type === 'underline') {
+        state.underline.enabled = document.getElementById('underlineEnabled').checked;
+        document.getElementById('underlineSettings').style.display = state.underline.enabled ? 'block' : 'none';
+      } else if (type === 'overline') {
+        state.overline.enabled = document.getElementById('overlineEnabled').checked;
+        document.getElementById('overlineSettings').style.display = state.overline.enabled ? 'block' : 'none';
+      }
+      updatePreview();
+    }
+
+    function setUnderlineStyle(style) {
+      state.underline.style = style;
+      document.querySelectorAll('.underline-style').forEach(opt => {
+        opt.classList.toggle('selected', opt.dataset.ulstyle === style);
+      });
+      updatePreview();
+    }
+
+    function setOverlineStyle(style) {
+      state.overline.style = style;
+      document.querySelectorAll('.overline-style').forEach(opt => {
+        opt.classList.toggle('selected', opt.dataset.olstyle === style);
+      });
+      updatePreview();
+    }
+
+    function toggleTransform(type) {
+      state.transform[type] = !state.transform[type];
+      document.querySelector(`[data-transform="${type}"]`).classList.toggle('selected');
       updatePreview();
     }
 
@@ -1036,19 +1252,65 @@
       updatePreview();
     });
 
+    document.getElementById('fontWeight').addEventListener('change', (e) => {
+      state.fontWeight = parseInt(e.target.value);
+      updatePreview();
+    });
+
+    document.getElementById('underlineColor').addEventListener('input', (e) => {
+      state.underline.color = e.target.value;
+      updatePreview();
+    });
+
+    document.getElementById('underlineThickness').addEventListener('input', (e) => {
+      state.underline.thickness = parseInt(e.target.value) || 2;
+      updatePreview();
+    });
+
+    document.getElementById('overlineColor').addEventListener('input', (e) => {
+      state.overline.color = e.target.value;
+      updatePreview();
+    });
+
+    document.getElementById('overlineThickness').addEventListener('input', (e) => {
+      state.overline.thickness = parseInt(e.target.value) || 2;
+      updatePreview();
+    });
+
+    document.getElementById('textRotate').addEventListener('input', (e) => {
+      state.transform.rotate = parseInt(e.target.value) || 0;
+      updatePreview();
+    });
+
     // Generate SVG code
     function generateCode() {
       const lines = state.textMode === 'multi' ? state.text.split('\n') : [state.text];
-      const lineHeight = state.fontSize + 4;
-      const totalHeight = lines.length * lineHeight;
-      
+      const lineHeight = state.fontSize * 1.3;
+
+      // Calculate better height with padding for effects
+      const effectPadding = Math.max(
+        state.glowEnabled ? state.glowSize * 2 : 0,
+        state.shadowEnabled ? Math.abs(state.shadowY) + state.shadowBlur : 0,
+        state.outlineEnabled ? state.outlineWidth * 2 : 0,
+        state.animation === 'bounce' || state.animation === 'float' || state.animation === 'wave' ? 15 : 0,
+        state.animation === 'zoom' ? state.fontSize * 0.15 : 0
+      );
+      const totalHeight = Math.ceil(lines.length * lineHeight + effectPadding * 2 + state.fontSize * 0.3);
+
       let styles = [];
       let defs = '';
-      
+
       // Font
       styles.push(`font-family:${state.font.family}`);
       styles.push(`font-size:${state.fontSize}px`);
-      
+
+      // Font weight (use state.fontWeight if not using bold effect)
+      if (state.effects.bold) {
+        styles.push('font-weight:bold');
+      } else if (state.fontWeight !== 400) {
+        styles.push(`font-weight:${state.fontWeight}`);
+      }
+
       // Color
       if (state.colorMode === 'gradient') {
         const dirs = {
@@ -1067,84 +1329,310 @@
           styles.push(`fill-opacity:${state.solidOpacity}`);
         }
       }
-      
+
       // Outline
       if (state.outlineEnabled) {
         styles.push(`stroke:${state.outlineColor.replace('#', '%23')}`);
         styles.push(`stroke-width:${state.outlineWidth}`);
         styles.push('paint-order:stroke fill');
       }
-      
+
       // Effects
-      if (state.effects.bold) styles.push('font-weight:bold');
       if (state.effects.italic) styles.push('font-style:italic');
       if (state.letterSpacing > 0) styles.push(`letter-spacing:${state.letterSpacing}px`);
-      
+
+      // Text decoration handled separately as SVG elements
+
+      // Text transform (rotate, flip)
+      let transforms = [];
+      if (state.transform.rotate !== 0) {
+        transforms.push(`rotate%28${state.transform.rotate}deg%29`);
+      }
+      if (state.transform.flipH) {
+        transforms.push('scaleX%28-1%29');
+      }
+      if (state.transform.flipV) {
+        transforms.push('scaleY%28-1%29');
+      }
+
       // Filters
       let filters = [];
+      let staticFilters = []; // Filters that should persist in glow-pulse animation
       if (state.effects.blur) filters.push('blur%281px%29');
       if (state.shadowEnabled) {
         const shadowColorWithOpacity = hexToRgba(state.shadowColor, state.shadowOpacity);
-        filters.push(`drop-shadow%28${state.shadowX}px ${state.shadowY}px ${state.shadowBlur}px ${shadowColorWithOpacity}%29`);
+        const shadowFilter = `drop-shadow%28${state.shadowX}px ${state.shadowY}px ${state.shadowBlur}px ${shadowColorWithOpacity}%29`;
+        filters.push(shadowFilter);
+        staticFilters.push(shadowFilter);
       }
       if (state.glowEnabled) {
         const glowColorWithOpacity = hexToRgba(state.glowColor, state.glowOpacity);
         filters.push(`drop-shadow%280 0 ${state.glowSize}px ${glowColorWithOpacity}%29`);
       }
-      
-      // Animation
-      let animationCSS = '';
+
+      // Animation - separate animation property from keyframes
+      let animationProp = '';
+      let animationKeyframes = '';
       const speed = state.animSpeed;
-      
+
       switch (state.animation) {
         case 'bounce':
-          animationCSS = `animation:bounce ${speed}s ease-in-out infinite;}@keyframes bounce{0%25,100%25{transform:translateY%280%29;}50%25{transform:translateY%28-5px%29;}`;
+          animationProp = `animation:bounce ${speed}s ease-in-out infinite`;
+          animationKeyframes = `@keyframes bounce{0%25,100%25{transform:translateY%280%29;}50%25{transform:translateY%28-5px%29;}}`;
           break;
         case 'pulse':
-          animationCSS = `animation:pulse ${speed}s ease-in-out infinite;}@keyframes pulse{0%25,100%25{opacity:1;}50%25{opacity:0.5;}`;
+          animationProp = `animation:pulse ${speed}s ease-in-out infinite`;
+          animationKeyframes = `@keyframes pulse{0%25,100%25{opacity:1;}50%25{opacity:0.5;}}`;
           break;
         case 'glow-pulse':
           const glowCol = state.glowColor.replace('#', '%23');
-          animationCSS = `animation:glowp ${speed}s ease-in-out infinite;}@keyframes glowp{0%25,100%25{filter:drop-shadow%280 0 2px ${glowCol}%29;}50%25{filter:drop-shadow%280 0 10px ${glowCol}%29;}`;
-          filters = []; // Remove static filter for animated glow
+          // Preserve shadow filters while animating glow
+          const baseFilters = staticFilters.length > 0 ? staticFilters.join(' ') + ' ' : '';
+          animationProp = `animation:glowp ${speed}s ease-in-out infinite`;
+          animationKeyframes = `@keyframes glowp{0%25,100%25{filter:${baseFilters}drop-shadow%280 0 2px ${glowCol}%29;}50%25{filter:${baseFilters}drop-shadow%280 0 10px ${glowCol}%29;}}`;
+          filters = staticFilters.slice(); // Keep shadow filters
           break;
         case 'color-shift':
-          animationCSS = `animation:colorshift ${speed}s linear infinite;}@keyframes colorshift{0%25{fill:%23ff69b4;}33%25{fill:%2300ffff;}66%25{fill:%23ffd700;}100%25{fill:%23ff69b4;}`;
+          animationProp = `animation:colorshift ${speed}s linear infinite`;
+          animationKeyframes = `@keyframes colorshift{0%25{fill:%23ff69b4;}33%25{fill:%2300ffff;}66%25{fill:%23ffd700;}100%25{fill:%23ff69b4;}}`;
           break;
         case 'float':
-          animationCSS = `animation:float ${speed}s ease-in-out infinite;}@keyframes float{0%25,100%25{transform:translateX%280%29;}50%25{transform:translateX%2810px%29;}`;
+          animationProp = `animation:float ${speed}s ease-in-out infinite`;
+          animationKeyframes = `@keyframes float{0%25,100%25{transform:translateY%280%29;}50%25{transform:translateY%28-8px%29;}}`;
           break;
         case 'wiggle':
-          animationCSS = `animation:wiggle ${speed}s ease-in-out infinite;}@keyframes wiggle{0%25,100%25{transform:rotate%280deg%29;}25%25{transform:rotate%282deg%29;}75%25{transform:rotate%28-2deg%29;}`;
+          // Wiggle handled specially to wrap in group for proper center
           break;
         case 'zoom':
-          animationCSS = `animation:zoom ${speed}s ease-in-out infinite;transform-origin:center;}@keyframes zoom{0%25,100%25{transform:scale%281%29;}50%25{transform:scale%281.1%29;}`;
+          // Zoom handled specially to wrap in group for proper center
+          break;
+        case 'wave':
+          // Wave animation is handled differently - per letter
+          break;
+        case 'marquee':
+          // Marquee handled specially - forces single line
           break;
       }
-      
+
       if (filters.length > 0 && state.animation !== 'glow-pulse') {
         styles.push(`filter:${filters.join(' ')}`);
+      } else if (state.animation === 'glow-pulse' && staticFilters.length > 0) {
+        // For glow-pulse, the filter is animated, not static
       }
-      
-      if (animationCSS) {
-        styles.push(animationCSS);
+
+      // Transforms will be applied to wrapper group (not text styles) so decorations rotate too
+      // For marquee, skip rotation transforms
+      let groupTransforms = [];
+      if (state.animation !== 'marquee') {
+        groupTransforms = transforms.slice();
       }
-      
+
+      // Animations that affect transform (bounce, float) go on wrapper group
+      // Color-shift, glow-pulse, and pulse affect fill/filter/opacity so stay on text styles
+      let groupAnimationCSS = '';
+      let groupKeyframes = '';
+      if (animationProp && ['bounce', 'float'].includes(state.animation)) {
+        groupAnimationCSS = animationProp;
+        groupKeyframes = animationKeyframes;
+      } else if (animationProp && state.animation !== 'wave' && state.animation !== 'wiggle' &&
+                 state.animation !== 'zoom' && state.animation !== 'marquee') {
+        styles.push(animationProp);
+        groupKeyframes = animationKeyframes; // Still need keyframes in extraStyles
+      }
+
       // Build text elements
       let textContent = '';
-      if (state.textMode === 'multi' && lines.length > 1) {
-        const tspans = lines.map((line, i) => {
-          const dy = i === 0 ? state.fontSize : lineHeight;
-          return `<tspan x='0' dy='${dy}'>${escapeText(line)}</tspan>`;
-        }).join('');
-        textContent = `<text>${tspans}</text>`;
-      } else {
-        textContent = `<text y='${state.fontSize - 4}'>${escapeText(state.text)}</text>`;
+      const textY = Math.ceil(effectPadding + state.fontSize);
+
+      // Text anchor based on alignment
+      let textAnchor = 'start';
+      let textX = '0';
+      if (state.textAlign === 'center') {
+        textAnchor = 'middle';
+        textX = '50%25';
+      } else if (state.textAlign === 'right') {
+        textAnchor = 'end';
+        textX = '100%25';
       }
-      
+
+      // For marquee - force single line treatment (wave now supports multiline)
+      const useMultiline = state.textMode === 'multi' && lines.length > 1 &&
+                           state.animation !== 'marquee';
+      const displayText = state.animation === 'marquee'
+                          ? state.text.replace(/\n/g, ' ') : state.text;
+
+      // Extra styles for animations that need them (wave, wiggle, zoom)
+      let extraStyles = '';
+
+      if (state.animation === 'wave') {
+        // Wave animation: split text into individual letters (supports multiline)
+        const delay = 0.1;
+        let letterStyles = [];
+        let letterCount = 0;
+
+        if (useMultiline) {
+          // Multiline wave: each line as separate text with wave letters
+          lines.forEach((line, lineIdx) => {
+            const lineY = textY + lineIdx * Math.ceil(lineHeight);
+            let lineLetters = '';
+            for (let i = 0; i < line.length; i++) {
+              const char = escapeText(line[i] === ' ' ? '\u00A0' : line[i]);
+              lineLetters += `<tspan class='l${letterCount}'>${char}</tspan>`;
+              letterStyles.push(`.l${letterCount}{animation:wave ${speed}s ease-in-out infinite;animation-delay:${(letterCount * delay).toFixed(1)}s;}`);
+              letterCount++;
+            }
+            textContent += `<text x='${textX}' y='${lineY}' text-anchor='${textAnchor}'>${lineLetters}</text>`;
+          });
+        } else {
+          // Single line wave
+          const text = displayText;
+          let letterElements = '';
+          for (let i = 0; i < text.length; i++) {
+            const char = escapeText(text[i] === ' ' ? '\u00A0' : text[i]);
+            letterElements += `<tspan class='l${i}'>${char}</tspan>`;
+            letterStyles.push(`.l${i}{animation:wave ${speed}s ease-in-out infinite;animation-delay:${(i * delay).toFixed(1)}s;}`);
+          }
+          textContent = `<text x='${textX}' y='${textY}' text-anchor='${textAnchor}'>${letterElements}</text>`;
+        }
+
+        extraStyles = `${letterStyles.join('')}@keyframes wave{0%25,100%25{baseline-shift:0;}50%25{baseline-shift:10px;}}`;
+      } else if (state.animation === 'marquee') {
+        // Marquee: scrolling text animation
+        const text = displayText;
+        let marqueeStyles = styles.join(';');
+        // Estimate text width for marquee
+        const charWidth = state.fontSize * 0.6;
+        const estTextWidth = text.length * charWidth + state.letterSpacing * (text.length - 1);
+        const marqueeKeyframes = `@keyframes marquee{0%25{transform:translateX%28100%25%29;}100%25{transform:translateX%28-${estTextWidth}px%29;}}`;
+        const marqueeAnim = `animation:marquee ${speed * 3}s linear infinite;`;
+        textContent = `<text x='0' y='${textY}' text-anchor='start'>${escapeText(text)}</text>`;
+        const allStyles = `text{${marqueeStyles};${marqueeAnim}}${marqueeKeyframes}`;
+        const svg = `![](data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'>${defs}<style>/*<![CDATA[*/${allStyles}/*]]>*/</style>${textContent}</svg>){100%:${totalHeight}}`;
+        return svg;
+      } else if (state.animation === 'wiggle' || state.animation === 'zoom') {
+        // Wiggle/zoom: generate text content, decorations will be added and wrapped later
+        const animName = state.animation;
+        const keyframes = animName === 'wiggle'
+          ? `@keyframes ${animName}{0%25,100%25{transform:rotate%280deg%29;}25%25{transform:rotate%283deg%29;}75%25{transform:rotate%28-3deg%29;}}`
+          : `@keyframes ${animName}{0%25,100%25{transform:scale%281%29;}50%25{transform:scale%281.1%29;}}`;
+        // Store animation for wrapper - will be applied after decorations
+        groupAnimationCSS = `animation:${animName} ${speed}s ease-in-out infinite;transform-origin:center;transform-box:fill-box`;
+        extraStyles = keyframes;
+
+        if (useMultiline) {
+          const tspans = lines.map((line, i) => {
+            return `<tspan x='${textX}' ${i === 0 ? `y='${textY}'` : `dy='${Math.ceil(lineHeight)}'`}>${escapeText(line)}</tspan>`;
+          }).join('');
+          textContent = `<text text-anchor='${textAnchor}'>${tspans}</text>`;
+        } else {
+          textContent = `<text x='${textX}' y='${textY}' text-anchor='${textAnchor}'>${escapeText(displayText)}</text>`;
+        }
+      } else if (useMultiline) {
+        const tspans = lines.map((line, i) => {
+          return `<tspan x='${textX}' ${i === 0 ? `y='${textY}'` : `dy='${Math.ceil(lineHeight)}'`}>${escapeText(line)}</tspan>`;
+        }).join('');
+        textContent = `<text text-anchor='${textAnchor}'>${tspans}</text>`;
+      } else {
+        textContent = `<text x='${textX}' y='${textY}' text-anchor='${textAnchor}'>${escapeText(displayText)}</text>`;
+      }
+
+      // Generate decoration elements (underline/overline) - supports multiline
+      let decorationElements = '';
+      if (state.underline.enabled || state.overline.enabled) {
+        const charWidth = state.fontSize * 0.6;
+
+        // Build wavy path helper
+        function buildWavyPath(width, y, amp, wl) {
+          const numSegments = Math.ceil((width * 2) / wl) + 2;
+          let path = `M 0 ${y} q ${wl/4} ${-amp} ${wl/2} 0`;
+          for (let i = 1; i < numSegments; i++) {
+            path += ` t ${wl/2} 0`;
+          }
+          return path;
+        }
+
+        // Generate decoration for a single line
+        function generateLineDecor(lineText, baseY, xOffset) {
+          let decor = '';
+          const lineWidth = lineText.length * charWidth + state.letterSpacing * Math.max(0, lineText.length - 1);
+          const ulY = baseY + state.fontSize * 0.15;
+          const olY = baseY - state.fontSize * 0.85;
+
+          if (state.underline.enabled) {
+            const ulColor = state.underline.color.replace('#', '%23');
+            const ulThickness = state.underline.thickness;
+            if (state.underline.style === 'wavy') {
+              const amp = ulThickness * 1.5, wl = ulThickness * 4;
+              decor += `<path d='${buildWavyPath(lineWidth, ulY, amp, wl)}' fill='none' stroke='${ulColor}' stroke-width='${ulThickness}' transform='translate%28${xOffset},0%29'/>`;
+            } else {
+              const dash = state.underline.style === 'dashed' ? ` stroke-dasharray='${ulThickness * 3} ${ulThickness * 2}'` : '';
+              decor += `<line x1='${xOffset}' y1='${ulY}' x2='${xOffset + lineWidth}' y2='${ulY}' stroke='${ulColor}' stroke-width='${ulThickness}'${dash}/>`;
+            }
+          }
+          if (state.overline.enabled) {
+            const olColor = state.overline.color.replace('#', '%23');
+            const olThickness = state.overline.thickness;
+            if (state.overline.style === 'wavy') {
+              const amp = olThickness * 1.5, wl = olThickness * 4;
+              decor += `<path d='${buildWavyPath(lineWidth, olY, amp, wl)}' fill='none' stroke='${olColor}' stroke-width='${olThickness}' transform='translate%28${xOffset},0%29'/>`;
+            } else {
+              const dash = state.overline.style === 'dashed' ? ` stroke-dasharray='${olThickness * 3} ${olThickness * 2}'` : '';
+              decor += `<line x1='${xOffset}' y1='${olY}' x2='${xOffset + lineWidth}' y2='${olY}' stroke='${olColor}' stroke-width='${olThickness}'${dash}/>`;
+            }
+          }
+          return decor;
+        }
+
+        if (useMultiline) {
+          // Generate decorations for each line
+          lines.forEach((line, i) => {
+            const lineY = textY + i * Math.ceil(lineHeight);
+            const lineWidth = line.length * charWidth + state.letterSpacing * Math.max(0, line.length - 1);
+            // Calculate x offset based on alignment
+            let xOff = 0;
+            // For multiline, we use percentage-based positioning via style
+            decorationElements += `<g style='transform:translateX%28calc%28${state.textAlign === 'center' ? '50%25' : state.textAlign === 'right' ? '100%25' : '0%25'} - ${state.textAlign === 'center' ? lineWidth/2 : state.textAlign === 'right' ? lineWidth : 0}px%29%29'>${generateLineDecor(line, lineY, 0)}</g>`;
+          });
+        } else {
+          // Single line
+          const singleText = displayText.replace(/\n/g, ' ');
+          const textWidth = singleText.length * charWidth + state.letterSpacing * Math.max(0, singleText.length - 1);
+          decorationElements = generateLineDecor(singleText, textY, 0);
+          // Wrap with alignment
+          let decorStyle = '';
+          if (state.textAlign === 'center') {
+            decorStyle = ` style='transform:translateX%28calc%2850%25 - ${textWidth/2}px%29%29'`;
+          } else if (state.textAlign === 'right') {
+            decorStyle = ` style='transform:translateX%28calc%28100%25 - ${textWidth}px%29%29'`;
+          }
+          decorationElements = `<g${decorStyle}>${decorationElements}</g>`;
+        }
+      }
+
       const styleStr = styles.join(';');
-      const svg = `![](data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'>${defs}<style>/*<![CDATA[*/text{${styleStr}}/*]]>*/</style>${textContent}</svg>){100%:${totalHeight}}`;
-      
+
+      // Wrap text + decorations in group for transforms and animations
+      let content = `${textContent}${decorationElements}`;
+      let wrapperStyle = '';
+      const wrapperParts = [];
+
+      if (groupTransforms.length > 0) {
+        wrapperParts.push(`transform:${groupTransforms.join(' ')}`);
+        wrapperParts.push('transform-origin:center center');
+        wrapperParts.push('transform-box:fill-box');
+      }
+      if (groupAnimationCSS) {
+        wrapperParts.push(groupAnimationCSS);
+      }
+
+      if (wrapperParts.length > 0) {
+        wrapperStyle = wrapperParts.join(';');
+        content = `<g style='${wrapperStyle}'>${content}</g>`;
+      }
+
+      const allExtraStyles = extraStyles + groupKeyframes;
+      const svg = `![](data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'>${defs}<style>/*<![CDATA[*/text{${styleStr}}${allExtraStyles}/*]]>*/</style>${content}</svg>){100%:${totalHeight}}`;
+
       return svg;
     }
 
@@ -1178,18 +1666,34 @@
     function updatePreview() {
       const code = generateCode();
       document.getElementById('codeOutput').textContent = code;
-      
+
       // Generate preview SVG (without Rentry wrapper)
       const lines = state.textMode === 'multi' ? state.text.split('\n') : [state.text];
-      const lineHeight = state.fontSize + 4;
-      const totalHeight = lines.length * lineHeight + 10;
-      
+      const lineHeight = state.fontSize * 1.3;
+
+      // Calculate better height with padding for effects
+      const effectPadding = Math.max(
+        state.glowEnabled ? state.glowSize * 2 : 0,
+        state.shadowEnabled ? Math.abs(state.shadowY) + state.shadowBlur : 0,
+        state.outlineEnabled ? state.outlineWidth * 2 : 0,
+        state.animation === 'bounce' || state.animation === 'float' || state.animation === 'wave' ? 15 : 0,
+        state.animation === 'zoom' ? state.fontSize * 0.15 : 0
+      );
+      const totalHeight = Math.ceil(lines.length * lineHeight + effectPadding * 2 + state.fontSize * 0.3);
+
       let styles = [];
       let defs = '';
-      
+
       styles.push(`font-family:${state.font.family}`);
       styles.push(`font-size:${state.fontSize}px`);
-      
+
+      // Font weight
+      if (state.effects.bold) {
+        styles.push('font-weight:bold');
+      } else if (state.fontWeight !== 400) {
+        styles.push(`font-weight:${state.fontWeight}`);
+      }
+
       if (state.colorMode === 'gradient') {
         const dirs = {
           'right': { x1: '0%', y1: '0%', x2: '100%', y2: '0%' },
@@ -1207,78 +1711,275 @@
           styles.push(`fill-opacity:${state.solidOpacity}`);
         }
       }
-      
+
       // Outline
       if (state.outlineEnabled) {
         styles.push(`stroke:${state.outlineColor}`);
         styles.push(`stroke-width:${state.outlineWidth}`);
         styles.push('paint-order:stroke fill');
       }
-      
-      if (state.effects.bold) styles.push('font-weight:bold');
+
       if (state.effects.italic) styles.push('font-style:italic');
       if (state.letterSpacing > 0) styles.push(`letter-spacing:${state.letterSpacing}px`);
-      
+
+      // Text transform
+      let transforms = [];
+      if (state.transform.rotate !== 0) {
+        transforms.push(`rotate(${state.transform.rotate}deg)`);
+      }
+      if (state.transform.flipH) {
+        transforms.push('scaleX(-1)');
+      }
+      if (state.transform.flipV) {
+        transforms.push('scaleY(-1)');
+      }
+
       let filters = [];
+      let staticFilters = [];
       if (state.effects.blur) filters.push('blur(1px)');
       if (state.shadowEnabled) {
         const shadowColorWithOpacity = hexToRgbaPlain(state.shadowColor, state.shadowOpacity);
-        filters.push(`drop-shadow(${state.shadowX}px ${state.shadowY}px ${state.shadowBlur}px ${shadowColorWithOpacity})`);
+        const shadowFilter = `drop-shadow(${state.shadowX}px ${state.shadowY}px ${state.shadowBlur}px ${shadowColorWithOpacity})`;
+        filters.push(shadowFilter);
+        staticFilters.push(shadowFilter);
       }
       if (state.glowEnabled) {
         const glowColorWithOpacity = hexToRgbaPlain(state.glowColor, state.glowOpacity);
         filters.push(`drop-shadow(0 0 ${state.glowSize}px ${glowColorWithOpacity})`);
       }
-      
-      let animationCSS = '';
+
+      let animationProp = '';
+      let animationKeyframes = '';
       const speed = state.animSpeed;
-      
+
       switch (state.animation) {
         case 'bounce':
-          animationCSS = `animation:bounce ${speed}s ease-in-out infinite;}@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}`;
+          animationProp = `animation:bounce ${speed}s ease-in-out infinite`;
+          animationKeyframes = `@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}`;
           break;
         case 'pulse':
-          animationCSS = `animation:pulse ${speed}s ease-in-out infinite;}@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}`;
+          animationProp = `animation:pulse ${speed}s ease-in-out infinite`;
+          animationKeyframes = `@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}`;
           break;
         case 'glow-pulse':
-          animationCSS = `animation:glowp ${speed}s ease-in-out infinite;}@keyframes glowp{0%,100%{filter:drop-shadow(0 0 2px ${state.glowColor});}50%{filter:drop-shadow(0 0 10px ${state.glowColor});}`;
-          filters = [];
+          const baseFilters = staticFilters.length > 0 ? staticFilters.join(' ') + ' ' : '';
+          animationProp = `animation:glowp ${speed}s ease-in-out infinite`;
+          animationKeyframes = `@keyframes glowp{0%,100%{filter:${baseFilters}drop-shadow(0 0 2px ${state.glowColor});}50%{filter:${baseFilters}drop-shadow(0 0 10px ${state.glowColor});}}`;
+          filters = staticFilters.slice();
           break;
         case 'color-shift':
-          animationCSS = `animation:colorshift ${speed}s linear infinite;}@keyframes colorshift{0%{fill:#ff69b4;}33%{fill:#00ffff;}66%{fill:#ffd700;}100%{fill:#ff69b4;}`;
+          animationProp = `animation:colorshift ${speed}s linear infinite`;
+          animationKeyframes = `@keyframes colorshift{0%{fill:#ff69b4;}33%{fill:#00ffff;}66%{fill:#ffd700;}100%{fill:#ff69b4;}}`;
           break;
         case 'float':
-          animationCSS = `animation:float ${speed}s ease-in-out infinite;}@keyframes float{0%,100%{transform:translateX(0);}50%{transform:translateX(10px);}`;
+          animationProp = `animation:float ${speed}s ease-in-out infinite`;
+          animationKeyframes = `@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}`;
           break;
         case 'wiggle':
-          animationCSS = `animation:wiggle ${speed}s ease-in-out infinite;}@keyframes wiggle{0%,100%{transform:rotate(0deg);}25%{transform:rotate(2deg);}75%{transform:rotate(-2deg);}`;
-          break;
         case 'zoom':
-          animationCSS = `animation:zoom ${speed}s ease-in-out infinite;transform-origin:center;}@keyframes zoom{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}`;
+        case 'wave':
+        case 'marquee':
+          // Handled specially below
           break;
       }
-      
+
       if (filters.length > 0 && state.animation !== 'glow-pulse') {
         styles.push(`filter:${filters.join(' ')}`);
       }
-      
-      if (animationCSS) {
-        styles.push(animationCSS);
+
+      // For marquee, skip rotation transforms
+      let groupTransforms = [];
+      if (state.animation !== 'marquee') {
+        groupTransforms = transforms.slice();
       }
-      
+
+      // Animations that affect transform (bounce, float) go on wrapper group
+      // Color-shift, glow-pulse, and pulse affect fill/filter/opacity so stay on text styles
+      let groupAnimationCSS = '';
+      let groupKeyframes = '';
+      if (animationProp && ['bounce', 'float'].includes(state.animation)) {
+        groupAnimationCSS = animationProp;
+        groupKeyframes = animationKeyframes;
+      } else if (animationProp && state.animation !== 'wave' && state.animation !== 'wiggle' &&
+                 state.animation !== 'zoom' && state.animation !== 'marquee') {
+        styles.push(animationProp);
+        groupKeyframes = animationKeyframes;
+      }
+
+      // Text anchor based on alignment
+      let textAnchor = 'start';
+      let textX = '0';
+      if (state.textAlign === 'center') {
+        textAnchor = 'middle';
+        textX = '50%';
+      } else if (state.textAlign === 'right') {
+        textAnchor = 'end';
+        textX = '100%';
+      }
+
+      const textY = Math.ceil(effectPadding + state.fontSize);
       let textContent = '';
-      if (state.textMode === 'multi' && lines.length > 1) {
+      let extraStyles = '';
+      let allExtraStyles = '';
+
+      // For marquee - force single line treatment
+      const useMultiline = state.textMode === 'multi' && lines.length > 1 &&
+                           state.animation !== 'marquee';
+      const displayText = state.animation === 'marquee'
+                          ? state.text.replace(/\n/g, ' ') : state.text;
+
+      if (state.animation === 'wave') {
+        // Wave supports multiline
+        const delay = 0.1;
+        let letterStyles = [];
+        let letterCount = 0;
+        let textElements = '';
+
+        if (useMultiline) {
+          lines.forEach((line, lineIdx) => {
+            const lineY = textY + lineIdx * Math.ceil(lineHeight);
+            let lineLetters = '';
+            for (let i = 0; i < line.length; i++) {
+              const char = escapeHTML(line[i] === ' ' ? '\u00A0' : line[i]);
+              lineLetters += `<tspan class="l${letterCount}">${char}</tspan>`;
+              letterStyles.push(`.l${letterCount}{animation:wave ${speed}s ease-in-out infinite;animation-delay:${(letterCount * delay).toFixed(1)}s;}`);
+              letterCount++;
+            }
+            textElements += `<text x="${textX}" y="${lineY}" text-anchor="${textAnchor}">${lineLetters}</text>`;
+          });
+        } else {
+          const text = displayText;
+          let letterElements = '';
+          for (let i = 0; i < text.length; i++) {
+            const char = escapeHTML(text[i] === ' ' ? '\u00A0' : text[i]);
+            letterElements += `<tspan class="l${i}">${char}</tspan>`;
+            letterStyles.push(`.l${i}{animation:wave ${speed}s ease-in-out infinite;animation-delay:${(i * delay).toFixed(1)}s;}`);
+          }
+          textElements = `<text x="${textX}" y="${textY}" text-anchor="${textAnchor}">${letterElements}</text>`;
+        }
+
+        textContent = textElements;
+        extraStyles = letterStyles.join('') + `@keyframes wave{0%,100%{baseline-shift:0;}50%{baseline-shift:10px;}}`;
+      } else if (state.animation === 'marquee') {
+        const text = displayText;
+        const charWidth = state.fontSize * 0.6;
+        const estTextWidth = text.length * charWidth + state.letterSpacing * (text.length - 1);
+        textContent = `<text x="0" y="${textY}" text-anchor="start">${escapeHTML(text)}</text>`;
+        extraStyles = `@keyframes marquee{0%{transform:translateX(100%);}100%{transform:translateX(-${estTextWidth}px);}}`;
+        styles.push(`animation:marquee ${speed * 3}s linear infinite`);
+      } else if (state.animation === 'wiggle' || state.animation === 'zoom') {
+        const animName = state.animation;
+        const keyframes = animName === 'wiggle'
+          ? `@keyframes ${animName}{0%,100%{transform:rotate(0deg);}25%{transform:rotate(3deg);}75%{transform:rotate(-3deg);}}`
+          : `@keyframes ${animName}{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}`;
+        extraStyles = keyframes;
+        // Store animation for wrapper - will be applied after decorations
+        groupAnimationCSS = `animation:${animName} ${speed}s ease-in-out infinite;transform-origin:center;transform-box:fill-box;`;
+
+        if (useMultiline) {
+          const tspans = lines.map((line, i) => {
+            return `<tspan x="${textX}" ${i === 0 ? `y="${textY}"` : `dy="${Math.ceil(lineHeight)}"`}>${escapeHTML(line)}</tspan>`;
+          }).join('');
+          textContent = `<text text-anchor="${textAnchor}">${tspans}</text>`;
+        } else {
+          textContent = `<text x="${textX}" y="${textY}" text-anchor="${textAnchor}">${escapeHTML(displayText)}</text>`;
+        }
+      } else if (useMultiline) {
         const tspans = lines.map((line, i) => {
-          const dy = i === 0 ? state.fontSize : lineHeight;
-          return `<tspan x="50%" dy="${dy}">${escapeHTML(line)}</tspan>`;
+          return `<tspan x="${textX}" ${i === 0 ? `y="${textY}"` : `dy="${Math.ceil(lineHeight)}"`}>${escapeHTML(line)}</tspan>`;
         }).join('');
-        textContent = `<text text-anchor="middle">${tspans}</text>`;
+        textContent = `<text text-anchor="${textAnchor}">${tspans}</text>`;
       } else {
-        textContent = `<text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle">${escapeHTML(state.text)}</text>`;
+        textContent = `<text x="${textX}" y="${textY}" text-anchor="${textAnchor}">${escapeHTML(displayText)}</text>`;
       }
-      
-      const previewSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="${Math.max(totalHeight, 80)}">${defs}<style>text{${styles.join(';')}}</style>${textContent}</svg>`;
-      
+
+      // Generate decoration elements for preview and supports multiline
+      let decorationElements = '';
+      if (state.underline.enabled || state.overline.enabled) {
+        const charWidth = state.fontSize * 0.6;
+
+        function buildWavyPathPreview(width, y, amp, wl) {
+          const numSegments = Math.ceil((width * 2) / wl) + 2;
+          let path = `M 0 ${y} q ${wl/4} ${-amp} ${wl/2} 0`;
+          for (let i = 1; i < numSegments; i++) {
+            path += ` t ${wl/2} 0`;
+          }
+          return path;
+        }
+
+        function generateLineDecorPreview(lineText, baseY, xOffset) {
+          let decor = '';
+          const lineWidth = lineText.length * charWidth + state.letterSpacing * Math.max(0, lineText.length - 1);
+          const ulY = baseY + state.fontSize * 0.15;
+          const olY = baseY - state.fontSize * 0.85;
+
+          if (state.underline.enabled) {
+            const ulColor = state.underline.color;
+            const ulThickness = state.underline.thickness;
+            if (state.underline.style === 'wavy') {
+              const amp = ulThickness * 1.5, wl = ulThickness * 4;
+              decor += `<path d="${buildWavyPathPreview(lineWidth, ulY, amp, wl)}" fill="none" stroke="${ulColor}" stroke-width="${ulThickness}" transform="translate(${xOffset},0)"/>`;
+            } else {
+              const dash = state.underline.style === 'dashed' ? ` stroke-dasharray="${ulThickness * 3} ${ulThickness * 2}"` : '';
+              decor += `<line x1="${xOffset}" y1="${ulY}" x2="${xOffset + lineWidth}" y2="${ulY}" stroke="${ulColor}" stroke-width="${ulThickness}"${dash}/>`;
+            }
+          }
+          if (state.overline.enabled) {
+            const olColor = state.overline.color;
+            const olThickness = state.overline.thickness;
+            if (state.overline.style === 'wavy') {
+              const amp = olThickness * 1.5, wl = olThickness * 4;
+              decor += `<path d="${buildWavyPathPreview(lineWidth, olY, amp, wl)}" fill="none" stroke="${olColor}" stroke-width="${olThickness}" transform="translate(${xOffset},0)"/>`;
+            } else {
+              const dash = state.overline.style === 'dashed' ? ` stroke-dasharray="${olThickness * 3} ${olThickness * 2}"` : '';
+              decor += `<line x1="${xOffset}" y1="${olY}" x2="${xOffset + lineWidth}" y2="${olY}" stroke="${olColor}" stroke-width="${olThickness}"${dash}/>`;
+            }
+          }
+          return decor;
+        }
+
+        if (useMultiline) {
+          lines.forEach((line, i) => {
+            const lineY = textY + i * Math.ceil(lineHeight);
+            const lineWidth = line.length * charWidth + state.letterSpacing * Math.max(0, line.length - 1);
+            const alignStyle = state.textAlign === 'center' ? `calc(50% - ${lineWidth/2}px)` :
+                               state.textAlign === 'right' ? `calc(100% - ${lineWidth}px)` : '0';
+            decorationElements += `<g style="transform:translateX(${alignStyle})">${generateLineDecorPreview(line, lineY, 0)}</g>`;
+          });
+        } else {
+          const singleText = displayText.replace(/\n/g, ' ');
+          const textWidth = singleText.length * charWidth + state.letterSpacing * Math.max(0, singleText.length - 1);
+          decorationElements = generateLineDecorPreview(singleText, textY, 0);
+          let decorStyle = '';
+          if (state.textAlign === 'center') {
+            decorStyle = ` style="transform:translateX(calc(50% - ${textWidth/2}px))"`;
+          } else if (state.textAlign === 'right') {
+            decorStyle = ` style="transform:translateX(calc(100% - ${textWidth}px))"`;
+          }
+          decorationElements = `<g${decorStyle}>${decorationElements}</g>`;
+        }
+      }
+
+      // Wrap text + decorations in group for transforms and animations
+      let content = `${textContent}${decorationElements}`;
+      const wrapperParts = [];
+
+      if (groupTransforms.length > 0) {
+        wrapperParts.push(`transform:${groupTransforms.join(' ')}`);
+        wrapperParts.push('transform-origin:center center');
+        wrapperParts.push('transform-box:fill-box');
+      }
+      if (groupAnimationCSS) {
+        wrapperParts.push(groupAnimationCSS);
+      }
+
+      if (wrapperParts.length > 0) {
+        content = `<g style="${wrapperParts.join(';')}">${content}</g>`;
+      }
+
+      allExtraStyles = extraStyles + groupKeyframes;
+      const previewSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="${Math.max(totalHeight, 80)}">${defs}<style>text{${styles.join(';')}}${allExtraStyles}</style>${content}</svg>`;
+
       document.getElementById('previewContent').innerHTML = previewSVG;
     }
 

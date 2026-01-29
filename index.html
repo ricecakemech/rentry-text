@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rentry SVG Text Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0a0f;
+      --bg-card: #12121a;
+      --bg-input: #1a1a25;
+      --accent-pink: #ff69b4;
+      --accent-cyan: #00ffff;
+      --accent-purple: #a855f7;
+      --text-primary: #ffffff;
+      --text-secondary: #8888aa;
+      --border-color: #2a2a3a;
+      --glow-pink: rgba(255, 105, 180, 0.3);
+      --glow-cyan: rgba(0, 255, 255, 0.3);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Space Mono', monospace;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(ellipse at 20% 20%, var(--glow-pink) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, var(--glow-cyan) 0%, transparent 50%);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-pink), var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 900px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+
+    .panel-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section {
+      margin-bottom: 1.5rem;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+    }
+
+    /* Text Input */
+    .text-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      color: var(--text-primary);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.9rem;
+      resize: vertical;
+      min-height: 80px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .text-input:focus {
+      outline: none;
+      border-color: var(--accent-pink);
+      box-shadow: 0 0 0 3px var(--glow-pink);
+    }
+
+    /* Font Grid */
+    .font-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      max-height: 200px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+
+    .font-grid::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .font-grid::-webkit-scrollbar-track {
+      background: var(--bg-input);
+      border-radius: 3px;
+    }
+
+    .font-grid::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 3px;
+    }
+
+    .font-option {
+      padding: 0.6rem 0.8rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: all 0.2s;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .font-option:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 255, 255, 0.05);
+    }
+
+    .font-option.selected {
+      border-color: var(--accent-pink);
+      background: rgba(255, 105, 180, 0.1);
+      box-shadow: 0 0 10px var(--glow-pink);
+    }
+
+    /* Color Mode Toggle */
+    .toggle-group {
+      display: flex;
+      background: var(--bg-input);
+      border-radius: 8px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .toggle-btn {
+      flex: 1;
+      padding: 0.6rem 1rem;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .toggle-btn.active {
+      background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
+      color: white;
+    }
+
+    /* Color Pickers */
+    .color-row {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-top: 1rem;
+    }
+
+    .color-picker-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex: 1;
+    }
+
+    .color-picker-wrapper label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .color-picker {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: none;
+    }
+
+    .color-picker::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    .color-picker::-webkit-color-swatch {
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+    }
+
+    .hex-input {
+      width: 80px;
+      padding: 0.5rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+    }
+
+    /* Effects Grid */
+    .effects-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+    }
+
+    .effect-option {
+      padding: 0.6rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .effect-option:hover {
+      border-color: var(--accent-cyan);
+    }
+
+    .effect-option.selected {
+      border-color: var(--accent-pink);
+      background: rgba(255, 105, 180, 0.1);
+    }
+
+    /* Animation Options */
+    .animation-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .animation-option {
+      padding: 0.6rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.7rem;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .animation-option:hover {
+      border-color: var(--accent-cyan);
+    }
+
+    .animation-option.selected {
+      border-color: var(--accent-pink);
+      background: rgba(255, 105, 180, 0.1);
+    }
+
+    /* Sliders */
+    .slider-group {
+      margin-top: 1rem;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .slider {
+      width: 100%;
+      height: 6px;
+      -webkit-appearance: none;
+      background: var(--bg-input);
+      border-radius: 3px;
+      outline: none;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: linear-gradient(135deg, var(--accent-pink), var(--accent-cyan));
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    /* Number Input */
+    .number-input {
+      width: 70px;
+      padding: 0.5rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      text-align: center;
+    }
+
+    .inline-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .inline-group label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    /* Sticky output panel */
+    .output {
+      position: sticky;
+      top: 2rem;
+      align-self: start;
+    }
+
+    /* Preview */
+    .preview-area {
+      background: linear-gradient(135deg, rgba(20, 20, 30, 0.9), rgba(30, 30, 45, 0.9));
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      min-height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3);
+    }
+
+    #previewContent {
+      width: 100%;
+    }
+
+    /* Code Output */
+    .code-output {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      font-size: 0.7rem;
+      line-height: 1.6;
+      max-height: 200px;
+      overflow: auto;
+      word-break: break-all;
+      color: var(--accent-cyan);
+    }
+
+    .code-output::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    .code-output::-webkit-scrollbar-track {
+      background: var(--bg-dark);
+    }
+
+    .code-output::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 3px;
+    }
+
+    /* Copy Button */
+    .copy-btn {
+      width: 100%;
+      padding: 1rem;
+      margin-top: 1rem;
+      background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .copy-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px var(--glow-pink);
+    }
+
+    .copy-btn:active {
+      transform: translateY(0);
+    }
+
+    .copy-btn.copied {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+    }
+
+    /* Checkbox */
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-pink);
+    }
+
+    .checkbox-group label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    /* Gradient Direction */
+    .direction-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .direction-btn {
+      padding: 0.5rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .direction-btn:hover {
+      border-color: var(--accent-cyan);
+    }
+
+    .direction-btn.selected {
+      border-color: var(--accent-pink);
+      background: rgba(255, 105, 180, 0.1);
+      color: var(--text-primary);
+    }
+
+    /* Multiline toggle */
+    .mode-toggle {
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>✧ Rentry SVG Text Generator ✧</h1>
+      <p class="subtitle">Create fancy text effects for your Rentry pages</p>
+    </header>
+
+    <div class="main-grid">
+      <!-- Left Panel: Controls -->
+      <div class="controls">
+        <!-- Text Input -->
+        <div class="panel">
+          <div class="panel-title">Text Input</div>
+          
+          <div class="section mode-toggle">
+            <div class="toggle-group">
+              <button class="toggle-btn active" data-mode="single" onclick="setTextMode('single')">Single Line</button>
+              <button class="toggle-btn" data-mode="multi" onclick="setTextMode('multi')">Multi Line</button>
+            </div>
+          </div>
+
+          <textarea class="text-input" id="textInput" placeholder="Type your text here...">Hello World</textarea>
+          
+          <div class="inline-group">
+            <label>Font Size:</label>
+            <input type="number" class="number-input" id="fontSize" value="18" min="8" max="72">
+            <label>px</label>
+          </div>
+        </div>
+
+        <!-- Font Selection -->
+        <div class="panel">
+          <div class="panel-title">Font Family</div>
+          <div class="font-grid" id="fontGrid"></div>
+        </div>
+
+        <!-- Color Settings -->
+        <div class="panel">
+          <div class="panel-title">Color</div>
+          
+          <div class="section">
+            <div class="section-label">Color Mode</div>
+            <div class="toggle-group">
+              <button class="toggle-btn active" data-color="solid" onclick="setColorMode('solid')">Solid</button>
+              <button class="toggle-btn" data-color="gradient" onclick="setColorMode('gradient')">Gradient</button>
+            </div>
+          </div>
+
+          <div id="solidColorSection" class="color-row" style="flex-direction: column; gap: 0.75rem;">
+            <div style="display: flex; gap: 1rem; align-items: center;">
+              <div class="color-picker-wrapper">
+                <label>Color:</label>
+                <input type="color" class="color-picker" id="solidColor" value="#ffffff">
+                <input type="text" class="hex-input" id="solidColorHex" value="#ffffff">
+              </div>
+            </div>
+            <div class="slider-group" style="margin-top: 0;">
+              <div class="slider-label">
+                <span>Opacity</span>
+                <span id="solidOpacityValue">100%</span>
+              </div>
+              <input type="range" class="slider" id="solidOpacity" min="0" max="1" step="0.05" value="1">
+            </div>
+          </div>
+
+          <div id="gradientColorSection" class="color-row" style="display: none; flex-direction: column; gap: 0.75rem;">
+            <div style="display: flex; gap: 1rem;">
+              <div class="color-picker-wrapper">
+                <label>Start:</label>
+                <input type="color" class="color-picker" id="gradientStart" value="#ff69b4">
+                <input type="text" class="hex-input" id="gradientStartHex" value="#ff69b4">
+              </div>
+              <div class="color-picker-wrapper">
+                <label>End:</label>
+                <input type="color" class="color-picker" id="gradientEnd" value="#00ffff">
+                <input type="text" class="hex-input" id="gradientEndHex" value="#00ffff">
+              </div>
+            </div>
+            <div class="slider-group" style="margin-top: 0;">
+              <div class="slider-label">
+                <span>Opacity</span>
+                <span id="gradientOpacityValue">100%</span>
+              </div>
+              <input type="range" class="slider" id="gradientOpacity" min="0" max="1" step="0.05" value="1">
+            </div>
+            <div class="section-label">Direction</div>
+            <div class="direction-grid">
+              <button class="direction-btn selected" data-dir="right" onclick="setGradientDir('right')">→</button>
+              <button class="direction-btn" data-dir="left" onclick="setGradientDir('left')">←</button>
+              <button class="direction-btn" data-dir="down" onclick="setGradientDir('down')">↓</button>
+              <button class="direction-btn" data-dir="up" onclick="setGradientDir('up')">↑</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Effects -->
+        <div class="panel">
+          <div class="panel-title">Effects</div>
+          
+          <div class="section">
+            <div class="section-label">Text Style</div>
+            <div class="effects-grid">
+              <div class="effect-option" data-effect="bold" onclick="toggleEffect('bold')">Bold</div>
+              <div class="effect-option" data-effect="italic" onclick="toggleEffect('italic')">Italic</div>
+              <div class="effect-option" data-effect="blur" onclick="toggleEffect('blur')">Blur</div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-label">Glow</div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="glowEnabled" onchange="updatePreview()">
+              <label>Enable Glow</label>
+            </div>
+            <div id="glowSettings" style="margin-top: 0.75rem;">
+              <div class="color-row" style="margin-top: 0;">
+                <div class="color-picker-wrapper">
+                  <label>Color:</label>
+                  <input type="color" class="color-picker" id="glowColor" value="#ff69b4">
+                </div>
+                <div class="color-picker-wrapper">
+                  <label>Size:</label>
+                  <input type="number" class="number-input" id="glowSize" value="5" min="1" max="20">
+                </div>
+              </div>
+              <div class="slider-group">
+                <div class="slider-label">
+                  <span>Opacity</span>
+                  <span id="glowOpacityValue">100%</span>
+                </div>
+                <input type="range" class="slider" id="glowOpacity" min="0" max="1" step="0.05" value="1">
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-label">Shadow</div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="shadowEnabled" onchange="updatePreview()">
+              <label>Enable Shadow</label>
+            </div>
+            <div id="shadowSettings" style="margin-top: 0.75rem;">
+              <div class="color-row" style="margin-top: 0;">
+                <div class="color-picker-wrapper">
+                  <label>Color:</label>
+                  <input type="color" class="color-picker" id="shadowColor" value="#000000">
+                </div>
+                <div class="color-picker-wrapper">
+                  <label>Blur:</label>
+                  <input type="number" class="number-input" id="shadowBlur" value="3" min="0" max="20">
+                </div>
+              </div>
+              <div class="slider-group">
+                <div class="slider-label">
+                  <span>Opacity</span>
+                  <span id="shadowOpacityValue">50%</span>
+                </div>
+                <input type="range" class="slider" id="shadowOpacity" min="0" max="1" step="0.05" value="0.5">
+              </div>
+              <div style="margin-top: 0.75rem;">
+                <div class="section-label" style="margin-bottom: 0.5rem;">Position (px) - Use negative values to move up/left</div>
+                <div style="display: flex; gap: 1rem;">
+                  <div class="color-picker-wrapper">
+                    <label>X:</label>
+                    <input type="number" class="number-input" id="shadowX" value="2" min="-20" max="20">
+                  </div>
+                  <div class="color-picker-wrapper">
+                    <label>Y:</label>
+                    <input type="number" class="number-input" id="shadowY" value="2" min="-20" max="20">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-label">Outline</div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="outlineEnabled" onchange="updatePreview()">
+              <label>Enable Outline</label>
+            </div>
+            <div class="color-row" id="outlineSettings" style="margin-top: 0.75rem;">
+              <div class="color-picker-wrapper">
+                <label>Color:</label>
+                <input type="color" class="color-picker" id="outlineColor" value="#ffffff">
+              </div>
+              <div class="color-picker-wrapper">
+                <label>Width:</label>
+                <input type="number" class="number-input" id="outlineWidth" value="1" min="0.5" max="5" step="0.5">
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-label">Letter Spacing</div>
+            <div class="slider-group">
+              <div class="slider-label">
+                <span>Spacing</span>
+                <span id="spacingValue">0px</span>
+              </div>
+              <input type="range" class="slider" id="letterSpacing" min="0" max="20" value="0">
+            </div>
+          </div>
+        </div>
+
+        <!-- Animations -->
+        <div class="panel">
+          <div class="panel-title">Animation</div>
+          
+          <div class="section">
+            <div class="section-label">Type</div>
+            <div class="animation-grid" id="animationGrid">
+              <div class="animation-option selected" data-anim="none" onclick="setAnimation('none')">None</div>
+              <div class="animation-option" data-anim="bounce" onclick="setAnimation('bounce')">Bounce</div>
+              <div class="animation-option" data-anim="pulse" onclick="setAnimation('pulse')">Pulse</div>
+              <div class="animation-option" data-anim="glow-pulse" onclick="setAnimation('glow-pulse')">Glow Pulse</div>
+              <div class="animation-option" data-anim="color-shift" onclick="setAnimation('color-shift')">Rainbow</div>
+              <div class="animation-option" data-anim="float" onclick="setAnimation('float')">Float</div>
+              <div class="animation-option" data-anim="wiggle" onclick="setAnimation('wiggle')">Wiggle</div>
+              <div class="animation-option" data-anim="zoom" onclick="setAnimation('zoom')">Zoom</div>
+            </div>
+          </div>
+
+          <div class="slider-group" id="animationSpeed">
+            <div class="slider-label">
+              <span>Speed</span>
+              <span id="speedValue">2s</span>
+            </div>
+            <input type="range" class="slider" id="animSpeed" min="0.5" max="10" step="0.5" value="2">
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Preview & Output -->
+      <div class="output">
+        <div class="panel" style="height: 100%;">
+          <div class="panel-title">Preview</div>
+          <div class="preview-area" id="previewArea">
+            <div id="previewContent"></div>
+          </div>
+
+          <div class="panel-title">Generated Code</div>
+          <div class="code-output" id="codeOutput"></div>
+          
+          <button class="copy-btn" id="copyBtn" onclick="copyCode()">Copy Code</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Font definitions - Web-safe fonts that work across platforms
+    const fonts = [
+      // Serif fonts
+      { name: 'Georgia', family: 'Georgia, serif', category: 'serif' },
+      { name: 'Times New Roman', family: 'Times New Roman, Times, serif', category: 'serif' },
+      { name: 'Palatino', family: 'Palatino Linotype, Palatino, serif', category: 'serif' },
+      { name: 'Book Antiqua', family: 'Book Antiqua, Palatino, serif', category: 'serif' },
+      { name: 'Garamond', family: 'Garamond, serif', category: 'serif' },
+      { name: 'Cambria', family: 'Cambria, serif', category: 'serif' },
+      { name: 'Didot', family: 'Didot, serif', category: 'serif' },
+      { name: 'Bodoni MT', family: 'Bodoni MT, serif', category: 'serif' },
+      // Sans-serif fonts
+      { name: 'Arial', family: 'Arial, Helvetica, sans-serif', category: 'sans-serif' },
+      { name: 'Verdana', family: 'Verdana, Geneva, sans-serif', category: 'sans-serif' },
+      { name: 'Trebuchet MS', family: 'Trebuchet MS, sans-serif', category: 'sans-serif' },
+      { name: 'Tahoma', family: 'Tahoma, Geneva, sans-serif', category: 'sans-serif' },
+      { name: 'Helvetica', family: 'Helvetica, Arial, sans-serif', category: 'sans-serif' },
+      { name: 'Impact', family: 'Impact, Charcoal, sans-serif', category: 'sans-serif' },
+      { name: 'Arial Black', family: 'Arial Black, Gadget, sans-serif', category: 'sans-serif' },
+      { name: 'Lucida Sans', family: 'Lucida Sans Unicode, Lucida Grande, sans-serif', category: 'sans-serif' },
+      { name: 'Century Gothic', family: 'Century Gothic, sans-serif', category: 'sans-serif' },
+      { name: 'Segoe UI', family: 'Segoe UI, sans-serif', category: 'sans-serif' },
+      { name: 'Calibri', family: 'Calibri, sans-serif', category: 'sans-serif' },
+      { name: 'Candara', family: 'Candara, sans-serif', category: 'sans-serif' },
+      { name: 'Optima', family: 'Optima, sans-serif', category: 'sans-serif' },
+      { name: 'Gill Sans', family: 'Gill Sans, sans-serif', category: 'sans-serif' },
+      { name: 'Franklin Gothic', family: 'Franklin Gothic Medium, sans-serif', category: 'sans-serif' },
+      // Monospace fonts
+      { name: 'Courier New', family: 'Courier New, Courier, monospace', category: 'monospace' },
+      { name: 'Lucida Console', family: 'Lucida Console, Monaco, monospace', category: 'monospace' },
+      { name: 'Consolas', family: 'Consolas, monospace', category: 'monospace' },
+      { name: 'Monaco', family: 'Monaco, monospace', category: 'monospace' },
+      { name: 'Andale Mono', family: 'Andale Mono, monospace', category: 'monospace' },
+      { name: 'Source Code Pro', family: 'Source Code Pro, monospace', category: 'monospace' },
+      // Cursive/Script fonts
+      { name: 'Comic Sans MS', family: 'Comic Sans MS, cursive', category: 'cursive' },
+      { name: 'Lucida Handwriting', family: 'Lucida Handwriting, cursive', category: 'cursive' },
+      { name: 'Segoe Script', family: 'Segoe Script, cursive', category: 'cursive' },
+      { name: 'Brush Script MT', family: 'Brush Script MT, cursive', category: 'cursive' },
+      { name: 'Snell Roundhand', family: 'Snell Roundhand, cursive', category: 'cursive' },
+      // Fantasy/Decorative fonts
+      { name: 'Papyrus', family: 'Papyrus, fantasy', category: 'fantasy' },
+      { name: 'Copperplate', family: 'Copperplate, fantasy', category: 'fantasy' },
+    ];
+
+    // State
+    let state = {
+      text: 'Hello World',
+      textMode: 'single',
+      font: fonts[0],
+      fontSize: 18,
+      colorMode: 'solid',
+      solidColor: '#ffffff',
+      solidOpacity: 1,
+      gradientStart: '#ff69b4',
+      gradientEnd: '#00ffff',
+      gradientDir: 'right',
+      gradientOpacity: 1,
+      effects: {
+        bold: false,
+        italic: false,
+        blur: false
+      },
+      glowEnabled: false,
+      glowColor: '#ff69b4',
+      glowSize: 5,
+      glowOpacity: 1,
+      shadowEnabled: false,
+      shadowColor: '#000000',
+      shadowOpacity: 0.5,
+      shadowX: 2,
+      shadowY: 2,
+      shadowBlur: 3,
+      outlineEnabled: false,
+      outlineColor: '#ffffff',
+      outlineWidth: 1,
+      letterSpacing: 0,
+      animation: 'none',
+      animSpeed: 2
+    };
+
+    // Initialize font grid
+    function initFontGrid() {
+      const grid = document.getElementById('fontGrid');
+      fonts.forEach((font, index) => {
+        const option = document.createElement('div');
+        option.className = 'font-option' + (index === 0 ? ' selected' : '');
+        option.style.fontFamily = font.family;
+        option.textContent = font.name;
+        option.onclick = () => selectFont(index);
+        grid.appendChild(option);
+      });
+    }
+
+    function selectFont(index) {
+      state.font = fonts[index];
+      document.querySelectorAll('.font-option').forEach((el, i) => {
+        el.classList.toggle('selected', i === index);
+      });
+      updatePreview();
+    }
+
+    function setTextMode(mode) {
+      state.textMode = mode;
+      document.querySelectorAll('[data-mode]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+      updatePreview();
+    }
+
+    function setColorMode(mode) {
+      state.colorMode = mode;
+      document.querySelectorAll('[data-color]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.color === mode);
+      });
+      document.getElementById('solidColorSection').style.display = mode === 'solid' ? 'flex' : 'none';
+      document.getElementById('gradientColorSection').style.display = mode === 'gradient' ? 'flex' : 'none';
+      updatePreview();
+    }
+
+    function setGradientDir(dir) {
+      state.gradientDir = dir;
+      document.querySelectorAll('.direction-btn').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.dir === dir);
+      });
+      updatePreview();
+    }
+
+    function toggleEffect(effect) {
+      state.effects[effect] = !state.effects[effect];
+      document.querySelector(`[data-effect="${effect}"]`).classList.toggle('selected');
+      updatePreview();
+    }
+
+    function setAnimation(anim) {
+      state.animation = anim;
+      document.querySelectorAll('.animation-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.dataset.anim === anim);
+      });
+      updatePreview();
+    }
+
+    // Event listeners
+    document.getElementById('textInput').addEventListener('input', (e) => {
+      state.text = e.target.value;
+      updatePreview();
+    });
+
+    document.getElementById('fontSize').addEventListener('input', (e) => {
+      state.fontSize = parseInt(e.target.value) || 18;
+      updatePreview();
+    });
+
+    document.getElementById('solidColor').addEventListener('input', (e) => {
+      state.solidColor = e.target.value;
+      document.getElementById('solidColorHex').value = e.target.value;
+      updatePreview();
+    });
+
+    document.getElementById('solidColorHex').addEventListener('input', (e) => {
+      if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
+        state.solidColor = e.target.value;
+        document.getElementById('solidColor').value = e.target.value;
+        updatePreview();
+      }
+    });
+
+    document.getElementById('gradientStart').addEventListener('input', (e) => {
+      state.gradientStart = e.target.value;
+      document.getElementById('gradientStartHex').value = e.target.value;
+      updatePreview();
+    });
+
+    document.getElementById('gradientStartHex').addEventListener('input', (e) => {
+      if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
+        state.gradientStart = e.target.value;
+        document.getElementById('gradientStart').value = e.target.value;
+        updatePreview();
+      }
+    });
+
+    document.getElementById('gradientEnd').addEventListener('input', (e) => {
+      state.gradientEnd = e.target.value;
+      document.getElementById('gradientEndHex').value = e.target.value;
+      updatePreview();
+    });
+
+    document.getElementById('gradientEndHex').addEventListener('input', (e) => {
+      if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) {
+        state.gradientEnd = e.target.value;
+        document.getElementById('gradientEnd').value = e.target.value;
+        updatePreview();
+      }
+    });
+
+    document.getElementById('solidOpacity').addEventListener('input', (e) => {
+      state.solidOpacity = parseFloat(e.target.value);
+      document.getElementById('solidOpacityValue').textContent = Math.round(state.solidOpacity * 100) + '%';
+      updatePreview();
+    });
+
+    document.getElementById('gradientOpacity').addEventListener('input', (e) => {
+      state.gradientOpacity = parseFloat(e.target.value);
+      document.getElementById('gradientOpacityValue').textContent = Math.round(state.gradientOpacity * 100) + '%';
+      updatePreview();
+    });
+
+    document.getElementById('glowEnabled').addEventListener('change', (e) => {
+      state.glowEnabled = e.target.checked;
+      updatePreview();
+    });
+
+    document.getElementById('glowColor').addEventListener('input', (e) => {
+      state.glowColor = e.target.value;
+      updatePreview();
+    });
+
+    document.getElementById('glowSize').addEventListener('input', (e) => {
+      state.glowSize = parseInt(e.target.value) || 5;
+      updatePreview();
+    });
+
+    document.getElementById('glowOpacity').addEventListener('input', (e) => {
+      state.glowOpacity = parseFloat(e.target.value);
+      document.getElementById('glowOpacityValue').textContent = Math.round(state.glowOpacity * 100) + '%';
+      updatePreview();
+    });
+
+    document.getElementById('shadowEnabled').addEventListener('change', (e) => {
+      state.shadowEnabled = e.target.checked;
+      updatePreview();
+    });
+
+    document.getElementById('shadowColor').addEventListener('input', (e) => {
+      state.shadowColor = e.target.value;
+      updatePreview();
+    });
+
+    document.getElementById('shadowBlur').addEventListener('input', (e) => {
+      state.shadowBlur = parseInt(e.target.value) || 3;
+      updatePreview();
+    });
+
+    document.getElementById('shadowOpacity').addEventListener('input', (e) => {
+      state.shadowOpacity = parseFloat(e.target.value);
+      document.getElementById('shadowOpacityValue').textContent = Math.round(state.shadowOpacity * 100) + '%';
+      updatePreview();
+    });
+
+    document.getElementById('shadowX').addEventListener('input', (e) => {
+      state.shadowX = parseInt(e.target.value) || 0;
+      updatePreview();
+    });
+
+    document.getElementById('shadowY').addEventListener('input', (e) => {
+      state.shadowY = parseInt(e.target.value) || 0;
+      updatePreview();
+    });
+
+    document.getElementById('outlineEnabled').addEventListener('change', (e) => {
+      state.outlineEnabled = e.target.checked;
+      updatePreview();
+    });
+
+    document.getElementById('outlineColor').addEventListener('input', (e) => {
+      state.outlineColor = e.target.value;
+      updatePreview();
+    });
+
+    document.getElementById('outlineWidth').addEventListener('input', (e) => {
+      state.outlineWidth = parseFloat(e.target.value) || 1;
+      updatePreview();
+    });
+
+    document.getElementById('letterSpacing').addEventListener('input', (e) => {
+      state.letterSpacing = parseInt(e.target.value);
+      document.getElementById('spacingValue').textContent = state.letterSpacing + 'px';
+      updatePreview();
+    });
+
+    document.getElementById('animSpeed').addEventListener('input', (e) => {
+      state.animSpeed = parseFloat(e.target.value);
+      document.getElementById('speedValue').textContent = state.animSpeed + 's';
+      updatePreview();
+    });
+
+    // Generate SVG code
+    function generateCode() {
+      const lines = state.textMode === 'multi' ? state.text.split('\n') : [state.text];
+      const lineHeight = state.fontSize + 4;
+      const totalHeight = lines.length * lineHeight;
+      
+      let styles = [];
+      let defs = '';
+      
+      // Font
+      styles.push(`font-family:${state.font.family}`);
+      styles.push(`font-size:${state.fontSize}px`);
+      
+      // Color
+      if (state.colorMode === 'gradient') {
+        const dirs = {
+          'right': { x1: '0%25', y1: '0%25', x2: '100%25', y2: '0%25' },
+          'left': { x1: '100%25', y1: '0%25', x2: '0%25', y2: '0%25' },
+          'down': { x1: '0%25', y1: '0%25', x2: '0%25', y2: '100%25' },
+          'up': { x1: '0%25', y1: '100%25', x2: '0%25', y2: '0%25' }
+        };
+        const d = dirs[state.gradientDir];
+        const gradOpacity = state.gradientOpacity < 1 ? ` stop-opacity='${state.gradientOpacity}'` : '';
+        defs = `<defs><linearGradient id='g' x1='${d.x1}' y1='${d.y1}' x2='${d.x2}' y2='${d.y2}'><stop offset='0%25' stop-color='${state.gradientStart.replace('#', '%23')}'${gradOpacity}/><stop offset='100%25' stop-color='${state.gradientEnd.replace('#', '%23')}'${gradOpacity}/></linearGradient></defs>`;
+        styles.push('fill:url%28%23g%29');
+      } else {
+        styles.push(`fill:${state.solidColor.replace('#', '%23')}`);
+        if (state.solidOpacity < 1) {
+          styles.push(`fill-opacity:${state.solidOpacity}`);
+        }
+      }
+      
+      // Outline
+      if (state.outlineEnabled) {
+        styles.push(`stroke:${state.outlineColor.replace('#', '%23')}`);
+        styles.push(`stroke-width:${state.outlineWidth}`);
+        styles.push('paint-order:stroke fill');
+      }
+      
+      // Effects
+      if (state.effects.bold) styles.push('font-weight:bold');
+      if (state.effects.italic) styles.push('font-style:italic');
+      if (state.letterSpacing > 0) styles.push(`letter-spacing:${state.letterSpacing}px`);
+      
+      // Filters
+      let filters = [];
+      if (state.effects.blur) filters.push('blur%281px%29');
+      if (state.shadowEnabled) {
+        const shadowColorWithOpacity = hexToRgba(state.shadowColor, state.shadowOpacity);
+        filters.push(`drop-shadow%28${state.shadowX}px ${state.shadowY}px ${state.shadowBlur}px ${shadowColorWithOpacity}%29`);
+      }
+      if (state.glowEnabled) {
+        const glowColorWithOpacity = hexToRgba(state.glowColor, state.glowOpacity);
+        filters.push(`drop-shadow%280 0 ${state.glowSize}px ${glowColorWithOpacity}%29`);
+      }
+      
+      // Animation
+      let animationCSS = '';
+      const speed = state.animSpeed;
+      
+      switch (state.animation) {
+        case 'bounce':
+          animationCSS = `animation:bounce ${speed}s ease-in-out infinite;}@keyframes bounce{0%25,100%25{transform:translateY%280%29;}50%25{transform:translateY%28-5px%29;}`;
+          break;
+        case 'pulse':
+          animationCSS = `animation:pulse ${speed}s ease-in-out infinite;}@keyframes pulse{0%25,100%25{opacity:1;}50%25{opacity:0.5;}`;
+          break;
+        case 'glow-pulse':
+          const glowCol = state.glowColor.replace('#', '%23');
+          animationCSS = `animation:glowp ${speed}s ease-in-out infinite;}@keyframes glowp{0%25,100%25{filter:drop-shadow%280 0 2px ${glowCol}%29;}50%25{filter:drop-shadow%280 0 10px ${glowCol}%29;}`;
+          filters = []; // Remove static filter for animated glow
+          break;
+        case 'color-shift':
+          animationCSS = `animation:colorshift ${speed}s linear infinite;}@keyframes colorshift{0%25{fill:%23ff69b4;}33%25{fill:%2300ffff;}66%25{fill:%23ffd700;}100%25{fill:%23ff69b4;}`;
+          break;
+        case 'float':
+          animationCSS = `animation:float ${speed}s ease-in-out infinite;}@keyframes float{0%25,100%25{transform:translateX%280%29;}50%25{transform:translateX%2810px%29;}`;
+          break;
+        case 'wiggle':
+          animationCSS = `animation:wiggle ${speed}s ease-in-out infinite;}@keyframes wiggle{0%25,100%25{transform:rotate%280deg%29;}25%25{transform:rotate%282deg%29;}75%25{transform:rotate%28-2deg%29;}`;
+          break;
+        case 'zoom':
+          animationCSS = `animation:zoom ${speed}s ease-in-out infinite;transform-origin:center;}@keyframes zoom{0%25,100%25{transform:scale%281%29;}50%25{transform:scale%281.1%29;}`;
+          break;
+      }
+      
+      if (filters.length > 0 && state.animation !== 'glow-pulse') {
+        styles.push(`filter:${filters.join(' ')}`);
+      }
+      
+      if (animationCSS) {
+        styles.push(animationCSS);
+      }
+      
+      // Build text elements
+      let textContent = '';
+      if (state.textMode === 'multi' && lines.length > 1) {
+        const tspans = lines.map((line, i) => {
+          const dy = i === 0 ? state.fontSize : lineHeight;
+          return `<tspan x='0' dy='${dy}'>${escapeText(line)}</tspan>`;
+        }).join('');
+        textContent = `<text>${tspans}</text>`;
+      } else {
+        textContent = `<text y='${state.fontSize - 4}'>${escapeText(state.text)}</text>`;
+      }
+      
+      const styleStr = styles.join(';');
+      const svg = `![](data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'>${defs}<style>/*<![CDATA[*/text{${styleStr}}/*]]>*/</style>${textContent}</svg>){100%:${totalHeight}}`;
+      
+      return svg;
+    }
+
+    function escapeText(text) {
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;')
+        .replace(/\(/g, '%28')
+        .replace(/\)/g, '%29')
+        .replace(/#/g, '%23');
+    }
+
+    function hexToRgba(hex, opacity) {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      // URL encode for SVG data URI
+      return `rgba%28${r},${g},${b},${opacity}%29`;
+    }
+
+    function hexToRgbaPlain(hex, opacity) {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${r},${g},${b},${opacity})`;
+    }
+
+    function updatePreview() {
+      const code = generateCode();
+      document.getElementById('codeOutput').textContent = code;
+      
+      // Generate preview SVG (without Rentry wrapper)
+      const lines = state.textMode === 'multi' ? state.text.split('\n') : [state.text];
+      const lineHeight = state.fontSize + 4;
+      const totalHeight = lines.length * lineHeight + 10;
+      
+      let styles = [];
+      let defs = '';
+      
+      styles.push(`font-family:${state.font.family}`);
+      styles.push(`font-size:${state.fontSize}px`);
+      
+      if (state.colorMode === 'gradient') {
+        const dirs = {
+          'right': { x1: '0%', y1: '0%', x2: '100%', y2: '0%' },
+          'left': { x1: '100%', y1: '0%', x2: '0%', y2: '0%' },
+          'down': { x1: '0%', y1: '0%', x2: '0%', y2: '100%' },
+          'up': { x1: '0%', y1: '100%', x2: '0%', y2: '0%' }
+        };
+        const d = dirs[state.gradientDir];
+        const gradOpacity = state.gradientOpacity < 1 ? ` stop-opacity="${state.gradientOpacity}"` : '';
+        defs = `<defs><linearGradient id="gp" x1="${d.x1}" y1="${d.y1}" x2="${d.x2}" y2="${d.y2}"><stop offset="0%" stop-color="${state.gradientStart}"${gradOpacity}/><stop offset="100%" stop-color="${state.gradientEnd}"${gradOpacity}/></linearGradient></defs>`;
+        styles.push('fill:url(#gp)');
+      } else {
+        styles.push(`fill:${state.solidColor}`);
+        if (state.solidOpacity < 1) {
+          styles.push(`fill-opacity:${state.solidOpacity}`);
+        }
+      }
+      
+      // Outline
+      if (state.outlineEnabled) {
+        styles.push(`stroke:${state.outlineColor}`);
+        styles.push(`stroke-width:${state.outlineWidth}`);
+        styles.push('paint-order:stroke fill');
+      }
+      
+      if (state.effects.bold) styles.push('font-weight:bold');
+      if (state.effects.italic) styles.push('font-style:italic');
+      if (state.letterSpacing > 0) styles.push(`letter-spacing:${state.letterSpacing}px`);
+      
+      let filters = [];
+      if (state.effects.blur) filters.push('blur(1px)');
+      if (state.shadowEnabled) {
+        const shadowColorWithOpacity = hexToRgbaPlain(state.shadowColor, state.shadowOpacity);
+        filters.push(`drop-shadow(${state.shadowX}px ${state.shadowY}px ${state.shadowBlur}px ${shadowColorWithOpacity})`);
+      }
+      if (state.glowEnabled) {
+        const glowColorWithOpacity = hexToRgbaPlain(state.glowColor, state.glowOpacity);
+        filters.push(`drop-shadow(0 0 ${state.glowSize}px ${glowColorWithOpacity})`);
+      }
+      
+      let animationCSS = '';
+      const speed = state.animSpeed;
+      
+      switch (state.animation) {
+        case 'bounce':
+          animationCSS = `animation:bounce ${speed}s ease-in-out infinite;}@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}`;
+          break;
+        case 'pulse':
+          animationCSS = `animation:pulse ${speed}s ease-in-out infinite;}@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}`;
+          break;
+        case 'glow-pulse':
+          animationCSS = `animation:glowp ${speed}s ease-in-out infinite;}@keyframes glowp{0%,100%{filter:drop-shadow(0 0 2px ${state.glowColor});}50%{filter:drop-shadow(0 0 10px ${state.glowColor});}`;
+          filters = [];
+          break;
+        case 'color-shift':
+          animationCSS = `animation:colorshift ${speed}s linear infinite;}@keyframes colorshift{0%{fill:#ff69b4;}33%{fill:#00ffff;}66%{fill:#ffd700;}100%{fill:#ff69b4;}`;
+          break;
+        case 'float':
+          animationCSS = `animation:float ${speed}s ease-in-out infinite;}@keyframes float{0%,100%{transform:translateX(0);}50%{transform:translateX(10px);}`;
+          break;
+        case 'wiggle':
+          animationCSS = `animation:wiggle ${speed}s ease-in-out infinite;}@keyframes wiggle{0%,100%{transform:rotate(0deg);}25%{transform:rotate(2deg);}75%{transform:rotate(-2deg);}`;
+          break;
+        case 'zoom':
+          animationCSS = `animation:zoom ${speed}s ease-in-out infinite;transform-origin:center;}@keyframes zoom{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}`;
+          break;
+      }
+      
+      if (filters.length > 0 && state.animation !== 'glow-pulse') {
+        styles.push(`filter:${filters.join(' ')}`);
+      }
+      
+      if (animationCSS) {
+        styles.push(animationCSS);
+      }
+      
+      let textContent = '';
+      if (state.textMode === 'multi' && lines.length > 1) {
+        const tspans = lines.map((line, i) => {
+          const dy = i === 0 ? state.fontSize : lineHeight;
+          return `<tspan x="50%" dy="${dy}">${escapeHTML(line)}</tspan>`;
+        }).join('');
+        textContent = `<text text-anchor="middle">${tspans}</text>`;
+      } else {
+        textContent = `<text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle">${escapeHTML(state.text)}</text>`;
+      }
+      
+      const previewSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="${Math.max(totalHeight, 80)}">${defs}<style>text{${styles.join(';')}}</style>${textContent}</svg>`;
+      
+      document.getElementById('previewContent').innerHTML = previewSVG;
+    }
+
+    function escapeHTML(text) {
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function copyCode() {
+      const code = document.getElementById('codeOutput').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy Code';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    initFontGrid();
+    updatePreview();
+  </script>
+</body>
+</html>

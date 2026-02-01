@@ -1,2 +1,355 @@
-Since people seem to suspect my UI is very "bothersome", I decided to revamp the whole page.
-Instead of spreading misinformation, messaging me would give you the following context: I paid for  the UI.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rentry SVG Text Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Rentry SVG Text Generator</h1>
+      <p class="subtitle">Custom text for rentry using XML, documentation can be found <a href="https://rentry.co/peaceful">here</a></p>
+    </header>
+
+    <div class="layout">
+      <div class="controls">
+        <div class="panel full-width">
+          <div class="panel-header">Text Input</div>
+
+          <div class="section">
+            <div class="toggle-group">
+              <button class="toggle-btn active" data-mode="single" onclick="setTextMode('single')">Single Line</button>
+              <button class="toggle-btn" data-mode="multi" onclick="setTextMode('multi')">Multi Line</button>
+            </div>
+          </div>
+
+          <textarea class="text-input" id="textInput" placeholder="Type your text here...">Hello World</textarea>
+
+          <div class="inline-group">
+            <label>Size:</label>
+            <input type="number" class="number-input" id="fontSize" value="18" min="8" max="200">
+            <span class="unit">px</span>
+          </div>
+          <div class="inline-group">
+            <label>Weight:</label>
+            <select class="number-input" id="fontWeight">
+              <option value="100">100 Thin</option>
+              <option value="200">200 Extra Light</option>
+              <option value="300">300 Light</option>
+              <option value="400" selected>400 Normal</option>
+              <option value="500">500 Medium</option>
+              <option value="600">600 Semi Bold</option>
+              <option value="700">700 Bold</option>
+              <option value="800">800 Extra Bold</option>
+              <option value="900">900 Black</option>
+            </select>
+          </div>
+
+          <div class="section" style="margin-top: 1rem;">
+            <span class="section-label">Alignment</span>
+            <div class="toggle-group">
+              <button class="toggle-btn" data-align="left" onclick="setTextAlign('left')">Left</button>
+              <button class="toggle-btn active" data-align="center" onclick="setTextAlign('center')">Center</button>
+              <button class="toggle-btn" data-align="right" onclick="setTextAlign('right')">Right</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls-grid">
+          <div class="panel">
+            <div class="panel-header">Font Family</div>
+            <div class="font-grid" id="fontGrid"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">Color</div>
+
+            <div class="section">
+              <div class="toggle-group">
+                <button class="toggle-btn active" data-color="solid" onclick="setColorMode('solid')">Solid</button>
+                <button class="toggle-btn" data-color="gradient" onclick="setColorMode('gradient')">Gradient</button>
+              </div>
+            </div>
+
+            <div id="solidColorSection">
+              <div class="color-row">
+                <div class="color-field">
+                  <label>Color:</label>
+                  <input type="color" class="color-picker" id="solidColor" value="#ffffff">
+                  <input type="text" class="hex-input" id="solidColorHex" value="#ffffff">
+                </div>
+              </div>
+              <div class="slider-group">
+                <div class="slider-label">
+                  <span>Opacity</span>
+                  <span id="solidOpacityValue">100%</span>
+                </div>
+                <input type="range" class="slider" id="solidOpacity" min="0" max="1" step="0.05" value="1">
+              </div>
+            </div>
+
+            <div id="gradientColorSection" style="display: none;">
+              <div class="color-row">
+                <div class="color-field">
+                  <label>Start:</label>
+                  <input type="color" class="color-picker" id="gradientStart" value="#ff69b4">
+                  <input type="text" class="hex-input" id="gradientStartHex" value="#ff69b4">
+                </div>
+              </div>
+              <div class="color-row" style="margin-top: 0.5rem;">
+                <div class="color-field">
+                  <label>End:</label>
+                  <input type="color" class="color-picker" id="gradientEnd" value="#00ffff">
+                  <input type="text" class="hex-input" id="gradientEndHex" value="#00ffff">
+                </div>
+              </div>
+              <div class="slider-group">
+                <div class="slider-label">
+                  <span>Opacity</span>
+                  <span id="gradientOpacityValue">100%</span>
+                </div>
+                <input type="range" class="slider" id="gradientOpacity" min="0" max="1" step="0.05" value="1">
+              </div>
+              <span class="section-label" style="margin-top: 0.75rem;">Direction</span>
+              <div class="direction-grid">
+                <button class="direction-btn selected" data-dir="right" onclick="setGradientDir('right')">&#8594;</button>
+                <button class="direction-btn" data-dir="left" onclick="setGradientDir('left')">&#8592;</button>
+                <button class="direction-btn" data-dir="down" onclick="setGradientDir('down')">&#8595;</button>
+                <button class="direction-btn" data-dir="up" onclick="setGradientDir('up')">&#8593;</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">Style</div>
+
+            <div class="section">
+              <span class="section-label">Text Style</span>
+              <div class="options-grid cols-2">
+                <div class="option-btn" data-effect="bold" onclick="toggleEffect('bold')">Bold</div>
+                <div class="option-btn" data-effect="italic" onclick="toggleEffect('italic')">Italic</div>
+                <div class="option-btn" data-effect="blur" onclick="toggleEffect('blur')">Blur</div>
+              </div>
+            </div>
+
+            <div class="section">
+              <span class="section-label">Transform</span>
+              <div class="inline-group" style="margin-top: 0;">
+                <label>Rotate:</label>
+                <input type="number" class="number-input" id="textRotate" value="0" min="-180" max="180">
+                <span class="unit">deg</span>
+              </div>
+              <div class="options-grid cols-2" style="margin-top: 0.5rem;">
+                <div class="option-btn" data-transform="flipH" onclick="toggleTransform('flipH')">Flip H</div>
+                <div class="option-btn" data-transform="flipV" onclick="toggleTransform('flipV')">Flip V</div>
+              </div>
+            </div>
+
+            <div class="section">
+              <span class="section-label">Letter Spacing</span>
+              <div class="slider-group" style="margin-top: 0;">
+                <div class="slider-label">
+                  <span>Spacing</span>
+                  <span id="spacingValue">0px</span>
+                </div>
+                <input type="range" class="slider" id="letterSpacing" min="0" max="20" value="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">Decorations</div>
+
+            <div class="section">
+              <div class="checkbox-group">
+                <input type="checkbox" id="underlineEnabled" onchange="toggleDecoration('underline')">
+                <label for="underlineEnabled">Underline</label>
+              </div>
+              <div id="underlineSettings" class="collapsible-settings">
+                <div class="options-grid">
+                  <div class="option-btn underline-style selected" data-ulstyle="solid" onclick="setUnderlineStyle('solid')">Solid</div>
+                  <div class="option-btn underline-style" data-ulstyle="wavy" onclick="setUnderlineStyle('wavy')">Wavy</div>
+                  <div class="option-btn underline-style" data-ulstyle="dashed" onclick="setUnderlineStyle('dashed')">Dashed</div>
+                </div>
+                <div class="color-row" style="margin-top: 0.5rem;">
+                  <div class="color-field">
+                    <label>Color:</label>
+                    <input type="color" class="color-picker" id="underlineColor" value="#ffffff">
+                  </div>
+                  <div class="color-field">
+                    <label>Width:</label>
+                    <input type="number" class="number-input" id="underlineThickness" value="2" min="1" max="10">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="section">
+              <div class="checkbox-group">
+                <input type="checkbox" id="overlineEnabled" onchange="toggleDecoration('overline')">
+                <label for="overlineEnabled">Overline</label>
+              </div>
+              <div id="overlineSettings" class="collapsible-settings">
+                <div class="options-grid">
+                  <div class="option-btn overline-style selected" data-olstyle="solid" onclick="setOverlineStyle('solid')">Solid</div>
+                  <div class="option-btn overline-style" data-olstyle="wavy" onclick="setOverlineStyle('wavy')">Wavy</div>
+                  <div class="option-btn overline-style" data-olstyle="dashed" onclick="setOverlineStyle('dashed')">Dashed</div>
+                </div>
+                <div class="color-row" style="margin-top: 0.5rem;">
+                  <div class="color-field">
+                    <label>Color:</label>
+                    <input type="color" class="color-picker" id="overlineColor" value="#ffffff">
+                  </div>
+                  <div class="color-field">
+                    <label>Width:</label>
+                    <input type="number" class="number-input" id="overlineThickness" value="2" min="1" max="10">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="section">
+              <div class="checkbox-group">
+                <input type="checkbox" id="outlineEnabled" onchange="toggleOutline()">
+                <label for="outlineEnabled">Outline</label>
+              </div>
+              <div id="outlineSettings" class="collapsible-settings">
+                <div class="color-row">
+                  <div class="color-field">
+                    <label>Color:</label>
+                    <input type="color" class="color-picker" id="outlineColor" value="#ffffff">
+                  </div>
+                  <div class="color-field">
+                    <label>Width:</label>
+                    <input type="number" class="number-input" id="outlineWidth" value="1" min="0.5" max="5" step="0.5">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">Effects</div>
+
+            <div class="section">
+              <div class="checkbox-group">
+                <input type="checkbox" id="glowEnabled" onchange="toggleGlow()">
+                <label for="glowEnabled">Glow</label>
+              </div>
+              <div id="glowSettings" class="collapsible-settings">
+                <div class="color-row">
+                  <div class="color-field">
+                    <label>Color:</label>
+                    <input type="color" class="color-picker" id="glowColor" value="#ff69b4">
+                  </div>
+                  <div class="color-field">
+                    <label>Size:</label>
+                    <input type="number" class="number-input" id="glowSize" value="5" min="1" max="20">
+                  </div>
+                </div>
+                <div class="slider-group">
+                  <div class="slider-label">
+                    <span>Opacity</span>
+                    <span id="glowOpacityValue">100%</span>
+                  </div>
+                  <input type="range" class="slider" id="glowOpacity" min="0" max="1" step="0.05" value="1">
+                </div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="section">
+              <div class="checkbox-group">
+                <input type="checkbox" id="shadowEnabled" onchange="toggleShadow()">
+                <label for="shadowEnabled">Shadow</label>
+              </div>
+              <div id="shadowSettings" class="collapsible-settings">
+                <div class="color-row">
+                  <div class="color-field">
+                    <label>Color:</label>
+                    <input type="color" class="color-picker" id="shadowColor" value="#000000">
+                  </div>
+                  <div class="color-field">
+                    <label>Blur:</label>
+                    <input type="number" class="number-input" id="shadowBlur" value="3" min="0" max="20">
+                  </div>
+                </div>
+                <div class="slider-group">
+                  <div class="slider-label">
+                    <span>Opacity</span>
+                    <span id="shadowOpacityValue">50%</span>
+                  </div>
+                  <input type="range" class="slider" id="shadowOpacity" min="0" max="1" step="0.05" value="0.5">
+                </div>
+                <div class="color-row" style="margin-top: 0.75rem;">
+                  <div class="color-field">
+                    <label>X:</label>
+                    <input type="number" class="number-input" id="shadowX" value="2" min="-20" max="20">
+                  </div>
+                  <div class="color-field">
+                    <label>Y:</label>
+                    <input type="number" class="number-input" id="shadowY" value="2" min="-20" max="20">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">Animation</div>
+
+            <div class="section">
+              <div class="options-grid">
+                <div class="option-btn animation-option selected" data-anim="none" onclick="setAnimation('none')">None</div>
+                <div class="option-btn animation-option" data-anim="bounce" onclick="setAnimation('bounce')">Bounce</div>
+                <div class="option-btn animation-option" data-anim="pulse" onclick="setAnimation('pulse')">Pulse</div>
+                <div class="option-btn animation-option" data-anim="glow-pulse" onclick="setAnimation('glow-pulse')">Glow</div>
+                <div class="option-btn animation-option" data-anim="color-shift" onclick="setAnimation('color-shift')">Rainbow</div>
+                <div class="option-btn animation-option" data-anim="float" onclick="setAnimation('float')">Float</div>
+                <div class="option-btn animation-option" data-anim="wiggle" onclick="setAnimation('wiggle')">Wiggle</div>
+                <div class="option-btn animation-option" data-anim="zoom" onclick="setAnimation('zoom')">Zoom</div>
+                <div class="option-btn animation-option" data-anim="wave" onclick="setAnimation('wave')">Wave</div>
+                <div class="option-btn animation-option" data-anim="marquee" onclick="setAnimation('marquee')">Marquee</div>
+              </div>
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-label">
+                <span>Speed</span>
+                <span id="speedValue">2s</span>
+              </div>
+              <input type="range" class="slider" id="animSpeed" min="0.5" max="10" step="0.5" value="2">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="output-panel">
+        <div class="panel">
+          <div class="panel-header">Preview</div>
+          <div class="preview-area">
+            <div id="previewContent"></div>
+          </div>
+
+          <div class="panel-header">Generated Code</div>
+          <div class="code-output" id="codeOutput"></div>
+
+          <button class="copy-btn" id="copyBtn" onclick="copyCode()">Copy Code</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -758,7 +758,7 @@ function generateCode() {
   // put it all together - the final svg data uri
   // the {100%:height} at the end is rentry's syntax for responsive width
   const allExtraStyles = extraStyles + groupKeyframes;
-  const svg = `![](data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'>${defs}<style>/*<![CDATA[*/${styleStr}/*]]>*/text{${styleStr}}${allExtraStyles}/*]]>*/</style>${content}</svg>){100%:${totalHeight}}`;
+  const svg = `![](data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'>${defs}<style>/*<![CDATA[*/text{${styleStr}}${allExtraStyles}/*]]>*/</style>${content}</svg>){100%:${totalHeight}}`;
 
   return svg;
 }

@@ -447,12 +447,9 @@ function generateCode() {
   styles.push(`font-family:${state.font.family}`);
   styles.push(`font-size:${state.fontSize}px`);
 
-  // handle font weight - bold effect overrides the weight dropdown
-  if (state.effects.bold) {
-    styles.push('font-weight:bold');
-  } else if (state.fontWeight !== 400) {
-    styles.push(`font-weight:${state.fontWeight}`);
-  }
+  // handle font weight - bold bumps to at least 700, always emit weight
+  const effectiveWeight = state.effects.bold ? Math.max(state.fontWeight, 700) : state.fontWeight;
+  styles.push(`font-weight:${effectiveWeight}`);
 
   // color handling is her solid or gradient
   if (state.colorMode === 'gradient') {
@@ -736,23 +733,30 @@ function generateCode() {
 
   const styleStr = styles.join(';');
 
-  // wrap content in a group if we need transforms or animations
+  // wrap content in group(s) for transforms and animations
+  // use nested groups when both user transforms and transform-based animations exist
+  // to prevent animation keyframes from overriding rotation/flip
   let content = `${textContent}${decorationElements}`;
-  let wrapperStyle = '';
-  const wrapperParts = [];
+  const transformAnimations = ['bounce', 'float', 'wiggle', 'zoom'];
+  const hasTransformAnim = groupAnimationCSS && transformAnimations.includes(state.animation);
+  const hasUserTransforms = groupTransforms.length > 0;
 
-  if (groupTransforms.length > 0) {
-    wrapperParts.push(`transform:${groupTransforms.join(' ')}`);
-    wrapperParts.push('transform-origin:center center');
-    wrapperParts.push('transform-box:fill-box');
-  }
-  if (groupAnimationCSS) {
-    wrapperParts.push(groupAnimationCSS);
-  }
-
-  if (wrapperParts.length > 0) {
-    wrapperStyle = wrapperParts.join(';');
-    content = `<g style='${wrapperStyle}'>${content}</g>`;
+  if (hasUserTransforms && hasTransformAnim) {
+    content = `<g style='${groupAnimationCSS}'>${content}</g>`;
+    content = `<g style='transform:${groupTransforms.join(' ')};transform-origin:center center;transform-box:fill-box'>${content}</g>`;
+  } else {
+    const wrapperParts = [];
+    if (hasUserTransforms) {
+      wrapperParts.push(`transform:${groupTransforms.join(' ')}`);
+      wrapperParts.push('transform-origin:center center');
+      wrapperParts.push('transform-box:fill-box');
+    }
+    if (groupAnimationCSS) {
+      wrapperParts.push(groupAnimationCSS);
+    }
+    if (wrapperParts.length > 0) {
+      content = `<g style='${wrapperParts.join(';')}'>${content}</g>`;
+    }
   }
 
   // put it all together - the final svg data uri
@@ -818,11 +822,8 @@ function updatePreview() {
   styles.push(`font-family:${state.font.family}`);
   styles.push(`font-size:${state.fontSize}px`);
 
-  if (state.effects.bold) {
-    styles.push('font-weight:bold');
-  } else if (state.fontWeight !== 400) {
-    styles.push(`font-weight:${state.fontWeight}`);
-  }
+  const effectiveWeight = state.effects.bold ? Math.max(state.fontWeight, 700) : state.fontWeight;
+  styles.push(`font-weight:${effectiveWeight}`);
 
   if (state.colorMode === 'gradient') {
     const dirs = {
@@ -1079,19 +1080,26 @@ function updatePreview() {
   }
 
   let content = `${textContent}${decorationElements}`;
-  const wrapperParts = [];
+  const transformAnimations = ['bounce', 'float', 'wiggle', 'zoom'];
+  const hasTransformAnim = groupAnimationCSS && transformAnimations.includes(state.animation);
+  const hasUserTransforms = groupTransforms.length > 0;
 
-  if (groupTransforms.length > 0) {
-    wrapperParts.push(`transform:${groupTransforms.join(' ')}`);
-    wrapperParts.push('transform-origin:center center');
-    wrapperParts.push('transform-box:fill-box');
-  }
-  if (groupAnimationCSS) {
-    wrapperParts.push(groupAnimationCSS);
-  }
-
-  if (wrapperParts.length > 0) {
-    content = `<g style="${wrapperParts.join(';')}">${content}</g>`;
+  if (hasUserTransforms && hasTransformAnim) {
+    content = `<g style="${groupAnimationCSS}">${content}</g>`;
+    content = `<g style="transform:${groupTransforms.join(' ')};transform-origin:center center;transform-box:fill-box">${content}</g>`;
+  } else {
+    const wrapperParts = [];
+    if (hasUserTransforms) {
+      wrapperParts.push(`transform:${groupTransforms.join(' ')}`);
+      wrapperParts.push('transform-origin:center center');
+      wrapperParts.push('transform-box:fill-box');
+    }
+    if (groupAnimationCSS) {
+      wrapperParts.push(groupAnimationCSS);
+    }
+    if (wrapperParts.length > 0) {
+      content = `<g style="${wrapperParts.join(';')}">${content}</g>`;
+    }
   }
 
   allExtraStyles = extraStyles + groupKeyframes;

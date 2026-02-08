@@ -52,9 +52,14 @@ header a {
   font-weight: 500;
 }
 h1 {
-  font-size: 1.75rem;
-  font-weight: 600;
+  font-size: 2.5rem;
+  font-weight: 800;
   margin-bottom: 0.25rem;
+  background: linear-gradient(135deg, #a78bfa, #8b5cf6, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
 }
 .subtitle {
   color: var(--text-muted);
@@ -91,14 +96,61 @@ h1 {
 }
 @media (max-width: 640px) {
   .app {
-    padding: 1rem;
+    padding: 0.75rem;
   }
   h1 {
     font-size: 1.5rem;
   }
   .controls-grid {
-    grid-template-columns: 1fr !important; 
+    grid-template-columns: 1fr !important;
     /* remain important to override full-width panels */
+  }
+  .toggle-btn {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.85rem;
+  }
+  .option-btn,
+  .font-option,
+  .direction-btn {
+    padding: 0.625rem;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .slider::-webkit-slider-thumb {
+    width: 20px;
+    height: 20px;
+  }
+  .checkbox-group input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+  }
+  .number-input {
+    padding: 0.625rem;
+    font-size: 0.875rem;
+  }
+  select.number-input {
+    width: 110px;
+  }
+  .color-picker {
+    width: 40px;
+    height: 40px;
+  }
+  .font-grid {
+    max-height: 160px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .panel {
+    padding: 1rem;
+  }
+  .preview-area {
+    min-height: 100px;
+    padding: 1rem;
+  }
+  .text-input {
+    font-size: 1rem;
+  }
+  .copy-btn {
+    padding: 1rem;
+    font-size: 1rem;
   }
 }
 
@@ -207,6 +259,7 @@ select.number-input option {
   cursor: pointer;
   border-radius: 4px;
   transition: all 0.2s;
+  touch-action: manipulation;
 }
 .toggle-btn:hover {
   color: var(--text-secondary);
@@ -226,6 +279,7 @@ select.number-input option {
   cursor: pointer;
   transition: all 0.15s;
   text-align: center;
+  touch-action: manipulation;
 }
 .font-option:hover,
 .option-btn:hover,
@@ -456,6 +510,7 @@ select.number-input option {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  touch-action: manipulation;
 }
 .copy-btn:hover {
   background: var(--accent-hover);
